@@ -1,0 +1,163 @@
+database:
+  host: localhost
+  port: 3306
+  database: ClansData
+  username: root
+  password: root
+  pool-size: 10
+
+storage:
+  required_level: 5
+  slots_per_level: 3
+
+clan:
+  max-name-length: 16
+  min-name-length: 3
+  creation-cost: 1000
+  max-members:
+    default: 5
+    per-level: 2
+  storage-size:
+    default: 9
+    per-level: 9
+  home:
+    cooldown: 300
+    delay: 5
+
+
+
+experience:
+  kill:
+    player: 150
+    mob: 12
+  block:
+    place: 24
+    break: 2
+
+levels:
+  1:
+    experience: 0
+    rewards:
+      max-members: 5
+      storage-slots: 9
+      max-balance: 250000
+      max-name-length: 5
+      available-colors: []
+      home-points: 1
+  2:
+    experience: 1000
+    rewards:
+      max-members: 7
+      storage-slots: 18
+      max-balance: 500000
+      max-name-length: 6
+      available-colors: ["&7"]
+      home-points: 1
+  3:
+    experience: 2500
+    rewards:
+      max-members: 9
+      storage-slots: 27
+      max-balance: 750000
+      max-name-length: 7
+      available-colors: ["&7", "&f"]
+      home-points: 2
+  4:
+    experience: 5000
+    rewards:
+      max-members: 11
+      storage-slots: 36
+      max-balance: 1000000
+      max-name-length: 8
+      available-colors: ["&7", "&f", "&e"]
+      home-points: 2
+  5:
+    experience: 10000
+    rewards:
+      max-members: 13
+      storage-slots: 45
+      max-balance: 2000000
+      max-name-length: 9
+      available-colors: ["&7", "&f", "&e", "&6"]
+      home-points: 3
+  6:
+    experience: 15000
+    rewards:
+      max-members: 15
+      storage-slots: 54
+      max-balance: 3000000
+      max-name-length: 10
+      available-colors: ["&7", "&f", "&e", "&6", "&a"]
+      home-points: 3
+  7:
+    experience: 25000
+    rewards:
+      max-members: 17
+      storage-slots: 54
+      max-balance: 4000000
+      max-name-length: 11
+      available-colors: ["&7", "&f", "&e", "&6", "&a", "&2"]
+      home-points: 4
+  8:
+    experience: 40000
+    rewards:
+      max-members: 19
+      storage-slots: 54
+      max-balance: 5000000
+      max-name-length: 12
+      available-colors: ["&7", "&f", "&e", "&6", "&a", "&2", "&b"]
+      home-points: 4
+  9:
+    experience: 60000
+    rewards:
+      max-members: 21
+      storage-slots: 54
+      max-balance: 6000000
+      max-name-length: 13
+      available-colors: ["&7", "&f", "&e", "&6", "&a", "&2", "&b", "&3"]
+      home-points: 5
+  10:
+    experience: 85000
+    rewards:
+      max-members: 23
+      storage-slots: 54
+      max-balance: 7000000
+      max-name-length: 14
+      available-colors: ["&7", "&f", "&e", "&6", "&a", "&2", "&b", "&3", "&c"]
+      home-points: 5
+  11:
+    experience: 115000
+    rewards:
+      max-members: 25
+      storage-slots: 54
+      max-balance: 8000000
+      max-name-length: 15
+      available-colors: ["&7", "&f", "&e", "&6", "&a", "&2", "&b", "&3", "&c", "&4"]
+      home-points: 6
+  12:
+    experience: 150000
+    rewards:
+      max-members: 27
+      storage-slots: 54
+      max-balance: 9000000
+      max-name-length: 16
+      available-colors: ["&7", "&f", "&e", "&6", "&a", "&2", "&b", "&3", "&c", "&4", "&d"]
+      home-points: 6
+  13:
+    experience: 200000
+    rewards:
+      max-members: 29
+      storage-slots: 54
+      max-balance: 10000000
+      max-name-length: 16
+      available-colors: ["&7", "&f", "&e", "&6", "&a", "&2", "&b", "&3", "&c", "&4", "&d", "&5"]
+      home-points: 7
+  14:
+    experience: 250000
+    rewards:
+      max-members: 30
+      storage-slots: 54
+      max-balance: 15000000
+      max-name-length: 16
+      available-colors: ["&7", "&f", "&e", "&6", "&a", "&2", "&b", "&3", "&c", "&4", "&d", "&5", "&9", "&1"]
+      home-points: 8

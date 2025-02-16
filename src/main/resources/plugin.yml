@@ -1,0 +1,10 @@
+name: AMClans
+version: '${project.version}'
+main: org.AtomoV.Clans
+api-version: 1.16
+depend: [Vault]
+commands:
+  clan:
+    description: Основная команда для управления кланом
+    usage: /clan [подкоманда] [аргументы]
+    aliases: [c]
