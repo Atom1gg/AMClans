@@ -2,6 +2,8 @@ package org.AtomoV.Listeners;
 
 import org.AtomoV.ClanUtil.Clan;
 import org.AtomoV.Clans;
+import org.AtomoV.Interface.ClanMenu;
+import org.AtomoV.Interface.LevelMenu;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -25,6 +27,51 @@ public class MenuListener implements Listener {
     }
 
     @EventHandler
+    public void onLevelMenuClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (!event.getView().getTitle().equals(ChatColor.GRAY + "Уровни клана")) return;
+
+        ItemStack clicked = event.getCurrentItem();
+        if (clicked == null || !clicked.hasItemMeta()) return;
+
+        ItemMeta meta = clicked.getItemMeta();
+        PersistentDataContainer container = meta.getPersistentDataContainer();
+
+        if (container.has(menuItemKey, PersistentDataType.BYTE)) {
+            event.setCancelled(true);
+
+            if (!container.has(menuActionKey, PersistentDataType.STRING)) {
+                return;
+            }
+
+            Player player = (Player) event.getWhoClicked();
+            Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
+            if (clan == null) return;
+
+            String action = container.get(menuActionKey, PersistentDataType.STRING);
+
+            if (action.equals("back")) {
+                new ClanMenu(plugin, player).open();
+                return;
+            }
+
+            if (action.startsWith("level_")) {
+                int level = Integer.parseInt(action.split("_")[1]);
+                if (level <= clan.getLevel()) {
+                    player.sendMessage(ChatColor.GREEN + "Этот уровень уже открыт!");
+                } else if (level == clan.getLevel() + 1) {
+                    int required = clan.getRequiredExperience();
+                    int current = clan.getExperience();
+                    player.sendMessage(ChatColor.YELLOW + "До следующего уровня нужно: " + (required - current) + " опыта");
+                } else {
+                    player.sendMessage(ChatColor.RED + "Этот уровень пока недоступен!");
+                }
+            }
+        }
+    }
+
+
+    @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
         if (!event.getView().getTitle().startsWith(ChatColor.GRAY + "Клан: ")) return;
@@ -35,11 +82,9 @@ public class MenuListener implements Listener {
         ItemMeta meta = clicked.getItemMeta();
         PersistentDataContainer container = meta.getPersistentDataContainer();
 
-        // Если это предмет меню (имеет тег menu_item), отменяем действие
         if (container.has(menuItemKey, PersistentDataType.BYTE)) {
             event.setCancelled(true);
 
-            // Проверяем, есть ли действие у предмета
             if (!container.has(menuActionKey, PersistentDataType.STRING)) {
                 return;
             }
@@ -55,6 +100,7 @@ public class MenuListener implements Listener {
                 case "members":
                     break;
                 case "level":
+                    new LevelMenu(plugin, player).open();
                     break;
                 case "top":
                     player.performCommand("clan top");

@@ -3,7 +3,6 @@ package org.AtomoV.Commands;
 import org.AtomoV.ClanUtil.Clan;
 import org.AtomoV.Clans;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -16,7 +15,7 @@ public class KickCommand extends SubCommand {
     @Override
     public boolean execute(Player player, String[] args) {
         if (args.length != 1) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Использование: /clan kick <игрок>");
+            player.sendMessage("&f&lClans ❯ &fИспользование: /clan kick <игрок>");
             return true;
         }
 
@@ -27,7 +26,7 @@ public class KickCommand extends SubCommand {
         }
 
         if (!clan.isLeader(player.getUniqueId()) && !clan.canManage(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ У вас нет прав на исключение игроков!");
+            player.sendMessage("&f&lClans ❯ &fУ вас нет прав на исключение игроков!");
             return true;
         }
 
@@ -35,24 +34,24 @@ public class KickCommand extends SubCommand {
         UUID targetUUID = target != null ? target.getUniqueId() : null;
 
         if (targetUUID == null) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Игрок не найден!");
+            player.sendMessage("&f&lClans ❯ &fИгрок не найден!");
             return true;
         }
 
         if (!clan.getMembers().contains(targetUUID)) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Этот игрок не состоит в вашем клане!");
+            player.sendMessage("&f&lClans ❯ &fЭтот игрок не состоит в вашем клане!");
             return true;
         }
 
         if (clan.isLeader(targetUUID)) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Вы не можете исключить лидера клана!");
+            player.sendMessage("&f&lClans ❯ &fВы не можете исключить лидера клана!");
             return true;
         }
 
         plugin.getClanManager().removeMember(clan.getName(), targetUUID);
-        player.sendMessage(ChatColor.GREEN + "Clans ❯ Игрок " + args[0] + " исключен из клана!");
+        player.sendMessage("&f&lClans ❯ &fИгрок " + args[0] + " исключен из клана!");
         if (target != null) {
-            target.sendMessage(ChatColor.RED + "Clans ❯ Вас исключили из клана " + clan.getName() + "!");
+            target.sendMessage("&f&lClans ❯ &fВас исключили из клана " + clan.getName() + "!");
         }
 
         return true;

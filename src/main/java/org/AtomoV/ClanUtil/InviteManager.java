@@ -37,11 +37,9 @@ public class InviteManager {
             return;
         }
 
-        // Добавляем приглашение
         invites.computeIfAbsent(target.getUniqueId(), k -> new HashMap<>())
                 .put(clan.getName(), System.currentTimeMillis() + INVITE_EXPIRATION_TIME);
 
-        // Отправляем сообщения
         inviter.sendMessage(ChatColor.GREEN + "Вы пригласили " + target.getName() + " в клан!");
         target.sendMessage(ChatColor.GREEN + "Вас пригласили в клан " + clan.getName() + "!");
         target.sendMessage(ChatColor.YELLOW + "Используйте " + ChatColor.WHITE + "/clan accept " +
@@ -69,14 +67,11 @@ public class InviteManager {
             return false;
         }
 
-        // Добавляем игрока в клан
         clan.addMember(player.getUniqueId());
         DataBaseManager.saveClan(clan);
 
-        // Удаляем все приглашения игрока
         invites.remove(player.getUniqueId());
 
-        // Оповещаем всех членов клана
         clan.broadcast(ChatColor.GREEN + player.getName() + " присоединился к клану!");
         return true;
     }
@@ -114,7 +109,7 @@ public class InviteManager {
                     invites.remove(uuid);
                 }
             });
-        }, 20L * 60, 20L * 60); // Каждую минуту
+        }, 20L * 60, 20L * 60);
     }
 
     public void removeAllInvites(String clanName) {

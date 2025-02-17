@@ -35,15 +35,15 @@ public class ClanMenu {
     }
 
     private void initializeItems() {
-        // Информация о клане
         ItemStack info = createMenuItem(Material.KNOWLEDGE_BOOK,
-                ChatColor.YELLOW + "Информация о клане",
+                "§e✯ Статистика клана",
                 "info",
-                ChatColor.GRAY + "Название: " + clan.getName(),
-                ChatColor.GRAY + "Лидер: " + Bukkit.getOfflinePlayer(clan.getLeader()).getName(),
-                ChatColor.GRAY + "Баланс: " + clan.getBalance());
+                "§fНазвание: §d" + clan.getName(),
+                "§fЛидер: §d" + Bukkit.getOfflinePlayer(clan.getLeader()).getName(),
+                "§fУчастников: §d" + clan.getMembers().size(),
+                "§fУровень: §e" + clan.getLevel() + "§f(§dXP " + clan.getExperience() +  "§f)",
+                "§fБаланс: §c" + clan.getBalance());
 
-        // Участники клана
         ItemStack members = createMenuItem(Material.TOTEM_OF_UNDYING,
                 ChatColor.GOLD + "Участники клана",
                 "members",
@@ -51,37 +51,11 @@ public class ClanMenu {
                 ChatColor.GRAY + "Нажмите, чтобы",
                 ChatColor.GRAY + "посмотреть список");
 
-        // Уровень клана
-        ItemStack level = createMenuItem(Material.DIAMOND,
+        ItemStack level = createMenuItem(Material.EXPERIENCE_BOTTLE,
                 ChatColor.AQUA + "Уровень клана",
                 "level",
-                ChatColor.GRAY + "Текущий уровень: " + clan.getLevel(),
-                ChatColor.GRAY + "Опыт: " + clan.getExperience() + "/" +
-                        plugin.getConfig().getInt("levels." + (clan.getLevel() + 1) + ".experience", 0));
+                ChatColor.GRAY + "Уровень клана: " + clan.getLevel());
 
-        // Топ кланов
-        ItemStack top = createMenuItem(Material.ENCHANTED_GOLDEN_APPLE,
-                ChatColor.LIGHT_PURPLE + "Топ кланов",
-                "top",
-                ChatColor.GRAY + "Нажмите, чтобы",
-                ChatColor.GRAY + "посмотреть рейтинг");
-
-        // Цвет брони клана
-        ItemStack armor = new ItemStack(Material.LEATHER_CHESTPLATE);
-        LeatherArmorMeta armorMeta = (LeatherArmorMeta) armor.getItemMeta();
-        if (armorMeta != null) {
-            armorMeta.setColor(Color.GREEN);
-            armorMeta.setDisplayName(ChatColor.GREEN + "Цвет брони клана");
-            armorMeta.setLore(Arrays.asList(
-                    ChatColor.GRAY + "Нажмите, чтобы",
-                    ChatColor.GRAY + "изменить цвет брони"
-            ));
-            armorMeta.getPersistentDataContainer().set(menuItemKey, PersistentDataType.BYTE, (byte) 1);
-            armorMeta.getPersistentDataContainer().set(menuActionKey, PersistentDataType.STRING, "color");
-            armor.setItemMeta(armorMeta);
-        }
-
-        // Дизайн клана
         ItemStack design = createMenuItem(Material.NAME_TAG,
                 ChatColor.YELLOW + "Дизайн клана",
                 "design",
@@ -89,12 +63,10 @@ public class ClanMenu {
                 ChatColor.GRAY + "настроить дизайн");
 
 
-        inventory.setItem(10, info);     // Книга
-        inventory.setItem(11, members);   // Тотем
-        inventory.setItem(12, level);     // Алмаз
-        inventory.setItem(13, top);       // Яблоко
-        inventory.setItem(19, armor);     // Кожанка
-        inventory.setItem(28, design);    // Бирка
+        inventory.setItem(20, info);
+        inventory.setItem(11, members);
+        inventory.setItem(12, level);
+        inventory.setItem(28, design);
 
         ItemStack filler = createDecoration(Material.WHITE_STAINED_GLASS_PANE, " ");
         int[] sideSlots = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44};

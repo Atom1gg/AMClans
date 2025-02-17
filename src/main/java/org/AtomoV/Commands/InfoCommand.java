@@ -30,10 +30,10 @@ public class InfoCommand extends SubCommand {
             }
         }
 
-        player.sendMessage(ChatColor.GOLD + "Clans ❯ Клан" + clan.getName());
+        player.sendMessage(ChatColor.GOLD + "Clans ❯ Клан " + clan.getName());
         player.sendMessage(ChatColor.YELLOW + "Лидер: " + ChatColor.WHITE +
                 Bukkit.getOfflinePlayer(clan.getLeader()).getName());
-        player.sendMessage(ChatColor.YELLOW + "Уровень: " + ChatColor.WHITE + clan.getLevel() + "(XP " + clan.getExperience() + " )");
+        player.sendMessage(ChatColor.YELLOW + "Уровень: " + ChatColor.WHITE + clan.getLevel() + " (XP " + clan.getExperience() + ")");
         player.sendMessage(ChatColor.YELLOW + "Баланс: " + ChatColor.WHITE + clan.getBalance());
         player.sendMessage(ChatColor.YELLOW + "Участники (" + clan.getMembers().size() + "):");
 

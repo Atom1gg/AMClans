@@ -79,14 +79,12 @@ public class DataBaseManager {
 
     public static void saveMembers(Clan clan) {
         try {
-            // Сначала удаляем старых участников
             PreparedStatement deletePs = DataBase.getConnection().prepareStatement(
                     "DELETE FROM clan_members WHERE clan_id = ?"
             );
             deletePs.setInt(1, clan.getId());
             deletePs.executeUpdate();
 
-            // Затем добавляем новых
             PreparedStatement insertPs = DataBase.getConnection().prepareStatement(
                     "INSERT INTO clan_members (clan_id, player_uuid, prefix) VALUES (?, ?, ?)"
             );

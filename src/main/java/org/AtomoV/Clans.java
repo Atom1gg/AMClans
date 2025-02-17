@@ -5,6 +5,7 @@ import org.AtomoV.ClanUtil.ClanManager;
 import org.AtomoV.ClanUtil.InviteManager;
 import org.AtomoV.Commands.ClanCommand;
 import org.AtomoV.DataBase.DataBase;
+import org.AtomoV.Listeners.ExperienceListener;
 import org.AtomoV.Listeners.MenuListener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -24,6 +25,7 @@ public class Clans extends JavaPlugin {
 
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new MenuListener(this), this);
+        pm.registerEvents(new ExperienceListener(this), this);
 
 
         if (!setupEconomy()) {

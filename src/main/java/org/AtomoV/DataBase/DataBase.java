@@ -33,7 +33,6 @@ public class DataBase {
 
     private static void createTables() {
         try (Statement stmt = connection.createStatement()) {
-            // Таблица кланов
             stmt.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS clans (" +
                             "id INT AUTO_INCREMENT PRIMARY KEY," +
@@ -51,7 +50,6 @@ public class DataBase {
                             ")"
             );
 
-            // Таблица участников клана
             stmt.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS clan_members (" +
                             "clan_id INT," +
@@ -62,7 +60,6 @@ public class DataBase {
                             ")"
             );
 
-            // Таблица хранилища клана
             stmt.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS clan_storage (" +
                             "clan_id INT," +

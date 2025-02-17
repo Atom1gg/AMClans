@@ -36,7 +36,7 @@ public class InvestCommand extends SubCommand {
         }
 
         if (amount < MIN_AMOUNT) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Минимальная сумма для инвестиции: " + MIN_AMOUNT);
+            player.sendMessage(ChatColor.RED + "Clans ❯ Минимальная сумма для депозита: " + MIN_AMOUNT);
             return true;
         }
 
@@ -47,7 +47,7 @@ public class InvestCommand extends SubCommand {
 
         double maxBalance = clan.getMaxBalance();
         if (clan.getBalance() + amount > maxBalance) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Достигнут максимальный баланс клана для текущего уровня!");
+            player.sendMessage(ChatColor.RED + "Clans ❯ Сумма депозита превышает максимальную казну клана (" + maxBalance + ")");
             return true;
         }
 
