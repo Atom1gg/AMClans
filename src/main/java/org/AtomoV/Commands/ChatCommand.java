@@ -22,7 +22,7 @@ public class ChatCommand extends SubCommand {
 
         Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
         if (clan == null) {
-            ClanCommand.sendHelpNew(player);
+            ClanCommand.sendHelp(player);
             return true;
         }
 

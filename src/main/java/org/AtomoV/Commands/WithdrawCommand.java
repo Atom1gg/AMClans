@@ -16,18 +16,18 @@ public class WithdrawCommand extends SubCommand {
     @Override
     public boolean execute(Player player, String[] args) {
         if (args.length != 1) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Использование: /clan withdraw <сумма>");
+            player.sendMessage("§6§lClans ❯ §fИспользование: /clan withdraw <сумма>");
             return true;
         }
 
         Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
         if (clan == null) {
-            ClanCommand.sendHelpNew(player);
+            ClanCommand.sendHelp(player);
             return true;
         }
 
         if (!clan.isLeader(player.getUniqueId()) && !clan.canManage(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Только лидер клана и управляющие могут снимать деньги!");
+            player.sendMessage("§6§lClans ❯ §fТолько лидер клана и управляющие могут снимать деньги!");
             return true;
         }
 
@@ -35,17 +35,17 @@ public class WithdrawCommand extends SubCommand {
         try {
             amount = Double.parseDouble(args[0]);
         } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Введите корректную сумму!");
+            player.sendMessage("§6§lClans ❯ §fВведите корректную сумму!");
             return true;
         }
 
         if (amount < MIN_AMOUNT) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Введите корректную сумму!");
+            player.sendMessage("§6§lClans ❯ §fВведите корректную сумму!");
             return true;
         }
 
         if (clan.getBalance() < amount) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ В казне клана недостаточно денег!");
+            player.sendMessage("§6§lClans ❯ §fВ казне клана недостаточно денег!");
             return true;
         }
 
@@ -53,7 +53,7 @@ public class WithdrawCommand extends SubCommand {
         plugin.getEconomy().depositPlayer(player, amount);
         DataBaseManager.saveClan(clan);
 
-        clan.broadcast(ChatColor.YELLOW + "Clans ❯ " + player.getName() + " снял " + amount + " из казны клана!");
+        clan.broadcast("§6§lClans ❯ §d " + player.getName() + "§f снял §e" + amount + "§f из казны клана!");
         return true;
     }
 }

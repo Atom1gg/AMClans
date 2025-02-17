@@ -19,28 +19,27 @@ public class InfoCommand extends SubCommand {
         if (args.length == 0) {
             clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
             if (clan == null) {
-                ClanCommand.sendHelpNew(player);
+                ClanCommand.sendHelp(player);
                 return true;
             }
         } else {
             clan = plugin.getClanManager().getClan(args[0]);
             if (clan == null) {
-                player.sendMessage(ChatColor.RED + "Clans ❯ Клан не найден!");
+                player.sendMessage("§6§lClans ❯ §fКлан не найден!");
                 return true;
             }
         }
 
-        player.sendMessage(ChatColor.GOLD + "Clans ❯ Клан " + clan.getName());
-        player.sendMessage(ChatColor.YELLOW + "Лидер: " + ChatColor.WHITE +
-                Bukkit.getOfflinePlayer(clan.getLeader()).getName());
-        player.sendMessage(ChatColor.YELLOW + "Уровень: " + ChatColor.WHITE + clan.getLevel() + " (XP " + clan.getExperience() + ")");
-        player.sendMessage(ChatColor.YELLOW + "Баланс: " + ChatColor.WHITE + clan.getBalance());
-        player.sendMessage(ChatColor.YELLOW + "Участники (" + clan.getMembers().size() + "):");
+        player.sendMessage("§6§lClans ❯ §fКлан §d" + clan.getName());
+        player.sendMessage("§fЛидер: §d" + Bukkit.getOfflinePlayer(clan.getLeader()).getName());
+        player.sendMessage("§fУровень: §e" + clan.getLevel() + " §d(XP " + clan.getExperience() + ")");
+        player.sendMessage("§fБаланс: §d" + clan.getBalance());
+        player.sendMessage("§fУчастники §d(" + clan.getMembers().size() + "):");
 
         for (UUID memberUUID : clan.getMembers()) {
             String memberName = Bukkit.getOfflinePlayer(memberUUID).getName();
             String prefix = clan.getPrefix(memberUUID);
-            player.sendMessage(ChatColor.WHITE + "- " + prefix + " " + memberName);
+            player.sendMessage("§f- " + prefix + " " + memberName);
         }
 
         return true;

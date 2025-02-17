@@ -92,25 +92,17 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
     }
 
     public static void sendHelp(Player player) {
-        player.sendMessage("Clans ❯ Помощь по командам клана");
-        player.sendMessage("&/clan create <название> " + ChatColor.WHITE + "- Создать клан");
-        player.sendMessage("/clan invite <игрок> " + ChatColor.WHITE + "- Пригласить игрока");
-        player.sendMessage("/clan kick <игрок> " + ChatColor.WHITE + "- Выгнать игрока");
-        player.sendMessage("/clan menu " + ChatColor.WHITE + "- Открыть меню клана");
-        player.sendMessage("/clan chat <сообщение> " + ChatColor.WHITE + "- Написать в чат клана");
-        player.sendMessage("/clan coords " + ChatColor.WHITE + "- Показать координаты участников");
-        player.sendMessage("/clan info " + ChatColor.WHITE + "- Информация о клане");
-        player.sendMessage("/clan disband " + ChatColor.WHITE + "- Расформировать клан");
-        player.sendMessage("/clan sethome " + ChatColor.WHITE + "- Установить точку дома");
-        player.sendMessage("/clan home " + ChatColor.WHITE + "- Телепортироваться домой");
-        player.sendMessage("/clan leave " + ChatColor.WHITE + "- Покинуть клан");
+        player.sendMessage("§6§lClans ❯ §fПомощь по командам клана");
+        player.sendMessage("§c/clan create <название>  §f- Создать клан");
+        player.sendMessage("§c/clan invite <игрок> §f- Пригласить игрока");
+        player.sendMessage("§c/clan kick <игрок> §f- Выгнать игрока");
+        player.sendMessage("§c/clan menu §f- Открыть меню клана");
+        player.sendMessage("§c/clan chat <сообщение> §c- Написать в чат клана");
+        player.sendMessage("§c/clan coords §f- Показать координаты участников");
+        player.sendMessage("§c/clan info §f- Информация о клане");
+        player.sendMessage("§c/clan disband §f- Расформировать клан");
+        player.sendMessage("§c/clan sethome §f- Установить точку дома");
+        player.sendMessage("§c/clan home §f- Телепортироваться домой");
+        player.sendMessage("§c/clan leave §f- Покинуть клан");
     }
-
-    public static void sendHelpNew(Player player) {
-        player.sendMessage(ChatColor.GOLD + "Clans ❯ Помощь по командам клана");
-        player.sendMessage(ChatColor.YELLOW + "/clan create <название> " + ChatColor.WHITE + "- Создать клан");
-        player.sendMessage(ChatColor.YELLOW + "/clan top " + ChatColor.WHITE + "- Топы кланов");
-        player.sendMessage(ChatColor.YELLOW + "/clan disband " + ChatColor.WHITE + "- Расформировать клан");
-    }
-
 }

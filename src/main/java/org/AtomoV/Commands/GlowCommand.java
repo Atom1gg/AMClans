@@ -19,12 +19,12 @@ public class GlowCommand extends SubCommand {
     public boolean execute(Player player, String[] args) {
         Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
         if (clan == null) {
-            ClanCommand.sendHelpNew(player);
+            ClanCommand.sendHelp(player);
             return true;
         }
 
         if (!clan.isLeader(player.getUniqueId()) && !clan.canManage(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ У вас нет прав на управление свечением!");
+            player.sendMessage("§6§lClans ❯ §fУ вас нет прав на управление свечением!");
             return true;
         }
 
@@ -34,8 +34,8 @@ public class GlowCommand extends SubCommand {
 
         updateGlowForClan(clan);
 
-        String status = newState ? "включено" : "выключено";
-        clan.broadcast(ChatColor.GREEN + "Clans ❯ Свечение клана " + status + "!");
+        String status = newState ? "§aвключено" : "§cвыключено";
+        clan.broadcast("§6§lClans ❯ §fСвечение клана " + status);
         return true;
     }
 

@@ -12,7 +12,7 @@ public class DenyCommand extends SubCommand {
     @Override
     public boolean execute(Player player, String[] args) {
         if (args.length != 1) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Использование: /clan deny <клан>");
+            player.sendMessage("§6§lClans ❯ §fИспользование: /clan deny <клан>");
             return true;
         }
 

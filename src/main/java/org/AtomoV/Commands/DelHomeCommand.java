@@ -15,18 +15,18 @@ public class DelHomeCommand extends SubCommand {
     public boolean execute(Player player, String[] args) {
         Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
         if (clan == null) {
-            ClanCommand.sendHelpNew(player);
+            ClanCommand.sendHelp(player);
             return true;
         }
 
         if (!clan.isLeader(player.getUniqueId()) && !clan.canManage(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ У вас нет прав на удаление точки дома!");
+            player.sendMessage("§6§lClans ❯ §fУ вас нет прав на удаление точки дома!");
             return true;
         }
 
         clan.setHome(null);
         DataBaseManager.saveClan(clan);
-        player.sendMessage(ChatColor.GREEN + "Clans ❯ Точка дома клана удалена!");
+        player.sendMessage("§6§lClans ❯ §fТочка дома клана удалена!");
 
         return true;
     }

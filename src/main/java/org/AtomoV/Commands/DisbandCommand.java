@@ -17,20 +17,19 @@ public class DisbandCommand extends SubCommand {
     public boolean execute(Player player, String[] args) {
         Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
         if (clan == null) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Вы не состоите в клане!");
+            player.sendMessage("§6§lClans ❯ §fВы не состоите в клане!");
             return true;
         }
 
         if (!clan.isLeader(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Только лидер может расформировать клан!");
+            player.sendMessage("§6§lClans ❯ §fТолько лидер может расформировать клан!");
             return true;
         }
 
-        // Оповещаем всех участников
         for (UUID memberUUID : clan.getMembers()) {
             Player member = Bukkit.getPlayer(memberUUID);
             if (member != null && member.isOnline()) {
-                member.sendMessage(ChatColor.RED + "Clans ❯ Клан " + clan.getName() + " был расформирован!");
+                member.sendMessage("§6§lClans ❯ §fКлан " + clan.getName() + " был расформирован!");
             }
         }
 

@@ -16,14 +16,13 @@ public class InvestCommand extends SubCommand {
     @Override
     public boolean execute(Player player, String[] args) {
         if (args.length != 1) {
-            player.sendMessage(ChatColor.RED + "Использование: /clan invest <сумма>");
-            player.sendMessage(ChatColor.YELLOW + "Минимальная сумма: " + MIN_AMOUNT);
+            player.sendMessage("§6§lClans ❯ §fИспользование: /clan invest <сумма>");
             return true;
         }
 
         Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
         if (clan == null) {
-            ClanCommand.sendHelpNew(player);
+            ClanCommand.sendHelp(player);
             return true;
         }
 
@@ -31,23 +30,23 @@ public class InvestCommand extends SubCommand {
         try {
             amount = Double.parseDouble(args[0]);
         } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Введите корректную сумму!");
+            player.sendMessage("§6§lClans ❯ §fВведите корректную сумму!");
             return true;
         }
 
         if (amount < MIN_AMOUNT) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Минимальная сумма для депозита: " + MIN_AMOUNT);
+            player.sendMessage("§6§lClans ❯ §fМинимальная сумма для депозита: " + MIN_AMOUNT);
             return true;
         }
 
         if (!plugin.getEconomy().has(player, amount)) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ У вас недостаточно денег!");
+            player.sendMessage("§6§lClans ❯ §fУ вас недостаточно денег!");
             return true;
         }
 
         double maxBalance = clan.getMaxBalance();
         if (clan.getBalance() + amount > maxBalance) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Сумма депозита превышает максимальную казну клана (" + maxBalance + ")");
+            player.sendMessage("§6§lClans ❯ §fСумма депозита превышает максимальную казну клана (" + maxBalance + ")");
             return true;
         }
 
@@ -55,7 +54,7 @@ public class InvestCommand extends SubCommand {
         clan.setBalance(clan.getBalance() + amount);
         DataBaseManager.saveClan(clan);
 
-        clan.broadcast(ChatColor.GREEN +  "Clans ❯ " + player.getName() + " внес " + amount + " в казну клана!");
+        clan.broadcast("§6§lClans ❯ §d " + player.getName() + " §fвнес §e" + amount + "§f в казну клана!");
         return true;
     }
 }

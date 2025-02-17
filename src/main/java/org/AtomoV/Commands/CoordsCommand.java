@@ -17,21 +17,20 @@ public class CoordsCommand extends SubCommand {
     public boolean execute(Player player, String[] args) {
         Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
         if (clan == null) {
-            ClanCommand.sendHelpNew(player);
+            ClanCommand.sendHelp(player);
             return true;
         }
 
-        player.sendMessage(ChatColor.GOLD + "Clans ❯ Координаты участников клана");
+        player.sendMessage("§6§lClans ❯ §fКоординаты участников клана");
         for (UUID memberUUID : clan.getMembers()) {
             Player member = Bukkit.getPlayer(memberUUID);
             if (member != null && member.isOnline()) {
-                String location = String.format("%.1f, %.1f, %.1f (%s)",
+                String location = String.format("%.1f, %.1f, %.1f",
                         member.getLocation().getX(),
                         member.getLocation().getY(),
-                        member.getLocation().getZ(),
-                        member.getWorld().getName()
+                        member.getLocation().getZ()
                 );
-                player.sendMessage(ChatColor.YELLOW + member.getName() + ": " + ChatColor.WHITE + location);
+                player.sendMessage("§f" + member.getName() + ": "  + location);
             }
         }
 

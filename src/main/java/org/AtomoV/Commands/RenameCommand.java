@@ -13,35 +13,35 @@ public class RenameCommand extends SubCommand {
     @Override
     public boolean execute(Player player, String[] args) {
         if (args.length != 1) {
-            player.sendMessage(ChatColor.RED + "Использование: /clan rename <новое_название>");
+            player.sendMessage("§6§lClans ❯ §fИспользование: /clan rename <новое_название>");
             return true;
         }
 
         Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
         if (clan == null) {
-            ClanCommand.sendHelpNew(player);
+            ClanCommand.sendHelp(player);
             return true;
         }
 
         if (!clan.isLeader(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Только лидер может переименовать клан!");
+            player.sendMessage("§6§lClans ❯ §fТолько лидер может переименовать клан!");
             return true;
         }
 
         String newName = args[0];
         if (newName.length() > clan.getMaxNameLength()) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Название слишком длинное! Максимум " + clan.getMaxNameLength() + " символов.");
+            player.sendMessage("§6§lClans ❯ §fНазвание слишком длинное! Максимум " + clan.getMaxNameLength() + " символов.");
             return true;
         }
 
         if (plugin.getClanManager().clanExists(newName)) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Клан с таким названием уже существует!");
+            player.sendMessage("§6§lClans ❯ §fКлан с таким названием уже существует!");
             return true;
         }
 
         String oldName = clan.getName();
         plugin.getClanManager().renameClan(oldName, newName);
-        player.sendMessage(ChatColor.GREEN + "Clans ❯ Клан переименован в " + newName + "!");
+        player.sendMessage("§6§lClans ❯ §fКлан переименован в " + newName + "!");
 
         return true;
     }

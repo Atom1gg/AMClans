@@ -14,11 +14,11 @@ public class MoneyCommand extends SubCommand {
     public boolean execute(Player player, String[] args) {
         Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
         if (clan == null) {
-            ClanCommand.sendHelpNew(player);
+            ClanCommand.sendHelp(player);
             return true;
         }
 
-        player.sendMessage(ChatColor.YELLOW + "Clans ❯ Текущий баланс клана: " + ChatColor.WHITE + clan.getBalance());
+        player.sendMessage("§6§lClans ❯ §fТекущий баланс клана: §e" +  clan.getBalance());
 
         return true;
     }

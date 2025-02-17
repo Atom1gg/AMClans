@@ -13,7 +13,7 @@ public class MenuCommand extends SubCommand {
     @Override
     public boolean execute(Player player, String[] args) {
         if (plugin.getClanManager().getPlayerClan(player.getUniqueId()) == null) {
-            ClanCommand.sendHelpNew(player);
+            ClanCommand.sendHelp(player);
             return true;
         }
 

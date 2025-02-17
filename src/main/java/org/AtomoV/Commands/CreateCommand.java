@@ -12,20 +12,20 @@ public class CreateCommand extends SubCommand {
     @Override
     public boolean execute(Player player, String[] args) {
         if (!hasPermission(player, "AMClans.create")) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ У вас нет прав на создание клана!");
+            player.sendMessage("§6§lClans ❯ §fУ вас нет прав на создание клана!");
             return true;
         }
 
         if (args.length != 1) {
-            ClanCommand.sendHelpNew(player);
+            ClanCommand.sendHelp(player);
             return true;
         }
 
         String name = args[0];
         if (plugin.getClanManager().createClan(name, player)) {
-            player.sendMessage(ChatColor.GREEN + "Clans ❯ Клан " + name + " успешно создан!");
+            player.sendMessage("§6§lClans ❯ §fКлан " + name + " успешно создан!");
         } else {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Не удалось создать клан, данное название занято.");
+            player.sendMessage("§6§lClans ❯ §fНе удалось создать клан, данное название занято.");
         }
 
         return true;

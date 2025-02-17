@@ -15,18 +15,18 @@ public class HomeCommand extends SubCommand {
     public boolean execute(Player player, String[] args) {
         Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
         if (clan == null) {
-            ClanCommand.sendHelpNew(player);
+            ClanCommand.sendHelp(player);
             return true;
         }
 
         Location home = clan.getHome();
         if (home == null) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Точка дома не установлена!");
+            player.sendMessage("§6§lClans ❯ §fТочка дома не установлена!");
             return true;
         }
 
         player.teleport(home);
-        player.sendMessage(ChatColor.GREEN + "Clans ❯ Телепортация в точку дома клана!");
+        player.sendMessage("§6§;Clans ❯ §fТелепортация в точку дома клана!");
 
         return true;
     }

@@ -21,7 +21,7 @@ public class InviteCommand extends SubCommand {
     @Override
     public boolean execute(Player player, String[] args) {
         if (args.length < 1) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Использование: /clan invite <игрок>");
+            player.sendMessage("§6§lClans ❯ §fИспользование: /clan invite <игрок>");
             return true;
         }
 
@@ -37,32 +37,32 @@ public class InviteCommand extends SubCommand {
     private boolean handleInvite(Player player, String targetName) {
         Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
         if (clan == null) {
-            ClanCommand.sendHelpNew(player);
+            ClanCommand.sendHelp(player);
             return true;
         }
 
         if (!clan.isLeader(player.getUniqueId()) && !clan.canManage(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ У вас нет прав на приглашение игроков!");
+            player.sendMessage("§6§lClans ❯ §fУ вас нет прав на приглашение игроков!");
             return true;
         }
 
         Player target = Bukkit.getPlayer(targetName);
         if (target == null) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Игрок не найден!");
+            player.sendMessage("§6§lClans ❯ §fИгрок не найден!");
             return true;
         }
 
         if (plugin.getClanManager().isPlayerInClan(target.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Этот игрок уже состоит в клане!");
+            player.sendMessage("§6§lClans ❯ §fЭтот игрок уже состоит в клане!");
             return true;
         }
 
         invites.put(target.getUniqueId(), clan.getName());
-        player.sendMessage(ChatColor.GREEN + "Clans ❯ Вы пригласили игрока " + target.getName() + " в клан!");
+        player.sendMessage("§6§lClans ❯ §fВы пригласили игрока " + target.getName() + " в клан!");
 
-        TextComponent inviteMessage = new TextComponent(ChatColor.GREEN + "Вас пригласили в клан " + clan.getName() + "! ");
-        TextComponent accept = new TextComponent(ChatColor.GREEN + "[Да, вступить]");
-        TextComponent decline = new TextComponent(ChatColor.RED + "[Нет, отклонить]");
+        TextComponent inviteMessage = new TextComponent("§6§lClans ❯ §fВас пригласили в клан §d" + clan.getName() + "! ");
+        TextComponent accept = new TextComponent("§a[вступить]");
+        TextComponent decline = new TextComponent("§c[отклонить]");
 
         accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/clan invite accept"));
         decline.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/clan invite decline"));
@@ -79,12 +79,12 @@ public class InviteCommand extends SubCommand {
         UUID playerId = player.getUniqueId();
 
         if (!invites.containsKey(playerId)) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ У вас нет активных приглашений в клан!");
+            player.sendMessage("§6§lClans ❯ §fУ вас нет активных приглашений в клан!");
             return true;
         }
 
         if (plugin.getClanManager().isPlayerInClan(playerId)) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Вы уже состоите в клане!");
+            player.sendMessage("§6§lClans ❯ §fВы уже состоите в клане!");
             invites.remove(playerId);
             return true;
         }
@@ -93,30 +93,30 @@ public class InviteCommand extends SubCommand {
         Clan clan = plugin.getClanManager().getClan(clanName);
 
         if (clan == null) {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Клан больше не существует!");
+            player.sendMessage("§6§lClans ❯ §fКлан больше не существует!");
             invites.remove(playerId);
             return true;
         }
 
         if (action.equals("accept")) {
             if (plugin.getClanManager().addMember(clanName, playerId)) {
-                player.sendMessage(ChatColor.GREEN + "Clans ❯ Вы присоединились к клану " + clanName + "!");
+                player.sendMessage("§6§lClans ❯ §fВы присоединились к клану " + clanName + "!");
 
                 for (UUID memberId : clan.getMembers()) {
                     Player member = Bukkit.getPlayer(memberId);
                     if (member != null && member.isOnline() && !member.getUniqueId().equals(playerId)) {
-                        member.sendMessage(ChatColor.GREEN + "Clans ❯ " + player.getName() + " присоединился к клану!");
+                        member.sendMessage("§6§lClans ❯ §f" + player.getName() + " присоединился к клану!");
                     }
                 }
             } else {
-                player.sendMessage(ChatColor.RED + "Clans ❯ Не удалось присоединиться к клану!");
+                player.sendMessage("§6§lClans ❯ §fНе удалось присоединиться к клану!");
             }
         } else {
-            player.sendMessage(ChatColor.RED + "Clans ❯ Вы отклонили приглашение в клан.");
+            player.sendMessage("§6§lClans ❯ §fВы отклонили приглашение в клан.");
 
             Player leader = Bukkit.getPlayer(clan.getLeader());
             if (leader != null && leader.isOnline()) {
-                leader.sendMessage(ChatColor.RED + "Clans ❯ " + player.getName() + " отклонил приглашение в клан.");
+                leader.sendMessage("§6§lClans ❯ §f" + player.getName() + " отклонил приглашение в клан.");
             }
         }
 
