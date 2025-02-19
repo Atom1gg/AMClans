@@ -1,11 +1,14 @@
 package org.AtomoV.ClanUtil;
 
 import org.AtomoV.Clans;
+import org.AtomoV.DataBase.DataBase;
 import org.AtomoV.DataBase.DataBaseManager;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +42,7 @@ public class ClanManager {
         playerClans.put(leader.getUniqueId(), name);
 
         DataBaseManager.saveClan(clan);
+        plugin.getQuestManager().generateInitialQuests(clan);
         return true;
     }
 
@@ -80,12 +84,28 @@ public class ClanManager {
         return clanName != null ? clans.get(clanName) : null;
     }
 
+
+    public Clan getClanByName(String name) {
+        return clans.get(name.toLowerCase());
+    }
+
     public void renameClan(String oldName, String newName) {
-        Clan clan = clans.remove(oldName);
-        if (clan != null) {
-            clan.setName(newName);
-            clans.put(newName, clan);
-            DataBaseManager.deleteClan(clan);
+        try {
+            PreparedStatement ps = DataBase.getConnection().prepareStatement(
+                    "UPDATE clans SET name = ? WHERE name = ?"
+            );
+            ps.setString(1, newName);
+            ps.setString(2, oldName);
+            ps.executeUpdate();
+
+            Clan clan = getClanByName(oldName);
+            if (clan != null) {
+                clan.setName(newName);
+                clans.remove(oldName.toLowerCase());
+                clans.put(newName.toLowerCase(), clan);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

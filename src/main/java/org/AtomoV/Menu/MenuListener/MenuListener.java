@@ -1,9 +1,11 @@
-package org.AtomoV.Listeners;
+package org.AtomoV.Menu.MenuListener;
 
 import org.AtomoV.ClanUtil.Clan;
 import org.AtomoV.Clans;
-import org.AtomoV.Interface.ClanMenu;
-import org.AtomoV.Interface.LevelMenu;
+import org.AtomoV.Menu.ClanMenu;
+import org.AtomoV.Menu.LevelMenu;
+import org.AtomoV.Menu.QuestMenu;
+import org.AtomoV.Quest.Quest;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -14,6 +16,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+
+import java.util.List;
 
 public class MenuListener implements Listener {
     private final Clans plugin;
@@ -70,6 +74,46 @@ public class MenuListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onQuestMenuClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (!event.getView().getTitle().equals(ChatColor.GRAY + "Ежедневные квесты клана")) return;
+
+        ItemStack clicked = event.getCurrentItem();
+        if (clicked == null || !clicked.hasItemMeta()) return;
+
+        ItemMeta meta = clicked.getItemMeta();
+        PersistentDataContainer container = meta.getPersistentDataContainer();
+
+        if (container.has(menuItemKey, PersistentDataType.BYTE)) {
+            event.setCancelled(true);
+
+            if (!container.has(menuActionKey, PersistentDataType.STRING)) return;
+
+            Player player = (Player) event.getWhoClicked();
+            Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
+            if (clan == null) return;
+
+            String action = container.get(menuActionKey, PersistentDataType.STRING);
+
+            if (action.equals("back")) {
+                new ClanMenu(plugin, player).open();
+                return;
+            }
+
+            if (action.startsWith("quest_")) {
+                int questNumber = Integer.parseInt(action.split("_")[1]) - 1;
+                List<Quest> quests = plugin.getQuestManager().getClanQuests(clan);
+
+                if (questNumber < quests.size()) {
+                    Quest quest = quests.get(questNumber);
+                    if (!quest.isCompleted()) {
+                        player.sendMessage("§6§lClans ❯ §fКвест еще не выполнен!");
+                    }
+                }
+            }
+        }
+    }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
@@ -102,12 +146,10 @@ public class MenuListener implements Listener {
                 case "level":
                     new LevelMenu(plugin, player).open();
                     break;
-                case "top":
-                    player.performCommand("clan top");
+                case "shop":
                     break;
-                case "color":
-                    break;
-                case "design":
+                case "quest":
+                    new QuestMenu(plugin, player).open();
                     break;
             }
         }

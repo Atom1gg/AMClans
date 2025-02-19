@@ -17,7 +17,7 @@ public class Clan {
     private String name;
     private UUID leader;
     private Set<UUID> members;
-    private double balance;
+    private int balance;
     private int level;
     private int experience;
     private int points;
@@ -27,7 +27,7 @@ public class Clan {
     private boolean glowEnabled;
     private Inventory storage;
     private int maxMembers;
-    private double maxBalance;
+    private int maxBalance;
     private int maxStorageSlots;
     private int maxNameLength;
     private Set<String> availableColors;
@@ -57,10 +57,15 @@ public class Clan {
         return points;
     }
 
+    public void addPoints(int points) {
+        this.points += points;
+    }
 
     public int getId() {
         return id;
     }
+
+
 
     public String getName() {
         return name;
@@ -74,7 +79,7 @@ public class Clan {
         return Collections.unmodifiableSet(members);
     }
 
-    public double getBalance() {
+    public int getBalance() {
         return balance;
     }
 
@@ -159,7 +164,7 @@ public class Clan {
         this.experience = experience;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(int balance) {
         this.balance = balance;
     }
 
@@ -170,7 +175,10 @@ public class Clan {
         if (experience >= requiredExp && level < 10) {
             levelUp();
         }
+
     }
+
+
 
     public int getRequiredExperience(int level) {
         switch (level) {
@@ -300,7 +308,7 @@ public class Clan {
         return maxMembers;
     }
 
-    public double getMaxBalance() {
+    public int getMaxBalance() {
         return maxBalance;
     }
 

@@ -40,16 +40,16 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
         subCommands.put("prefix", new PrefixCommand(plugin));
         subCommands.put("rename", new RenameCommand(plugin));
         subCommands.put("glow", new GlowCommand(plugin));
-        subCommands.put("invest", new InvestCommand(plugin));
+        subCommands.put("deposit", new InvestCommand(plugin));
         subCommands.put("withdraw", new WithdrawCommand(plugin));
         subCommands.put("accept", new AcceptCommand(plugin));
-        subCommands.put("deny", new DenyCommand(plugin));
+        subCommands.put("decline", new AcceptCommand(plugin));
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Clans ❯ Эу уебище че ты забыл в консоли, тут клан нельзя создавать");
+            sender.sendMessage("Clans ❯ Эу уебище че ты забыл в консоли, тут клан нельзя создавать");
             return true;
         }
 
@@ -93,16 +93,16 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
 
     public static void sendHelp(Player player) {
         player.sendMessage("§6§lClans ❯ §fПомощь по командам клана");
-        player.sendMessage("§c/clan create <название>  §f- Создать клан");
-        player.sendMessage("§c/clan invite <игрок> §f- Пригласить игрока");
-        player.sendMessage("§c/clan kick <игрок> §f- Выгнать игрока");
-        player.sendMessage("§c/clan menu §f- Открыть меню клана");
-        player.sendMessage("§c/clan chat <сообщение> §c- Написать в чат клана");
-        player.sendMessage("§c/clan coords §f- Показать координаты участников");
-        player.sendMessage("§c/clan info §f- Информация о клане");
-        player.sendMessage("§c/clan disband §f- Расформировать клан");
-        player.sendMessage("§c/clan sethome §f- Установить точку дома");
-        player.sendMessage("§c/clan home §f- Телепортироваться домой");
-        player.sendMessage("§c/clan leave §f- Покинуть клан");
+        player.sendMessage("§e/clan create <название>  §f- Создать клан");
+        player.sendMessage("§e/clan invite <игрок> §f- Пригласить игрока в клан");
+        player.sendMessage("§e/clan kick <игрок> §f- Исключить игрока из клана");
+        player.sendMessage("§e/clan menu §f- Открыть меню клана");
+        player.sendMessage("§e/clan chat <сообщение> §f- Написать в чат клана");
+        player.sendMessage("§e/clan coords §f- Показать координаты участников");
+        player.sendMessage("§e/clan info §f- Информация о клане");
+        player.sendMessage("§e/clan disband §f- Расформировать клан");
+        player.sendMessage("§e/clan sethome §f- Установить точку дома");
+        player.sendMessage("§e/clan home §f- Телепортироваться домой");
+        player.sendMessage("§e/clan leave §f- Покинуть клан");
     }
 }

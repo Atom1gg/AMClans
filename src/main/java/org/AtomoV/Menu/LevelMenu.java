@@ -1,4 +1,4 @@
-package org.AtomoV.Interface;
+package org.AtomoV.Menu;
 
 import org.AtomoV.ClanUtil.Clan;
 import org.AtomoV.Clans;
@@ -34,9 +34,9 @@ public class LevelMenu {
 
     private void initializeItems() {
         ItemStack back = createMenuItem(Material.ARROW,
-                ChatColor.RED + "Назад",
+                "§c« Назад",
                 "back",
-                ChatColor.GRAY + "Нажмите, чтобы вернуться");
+                "§8Нажмите, чтобы вернуться");
         inventory.setItem(4, back);
 
         int[] levelSlots = {20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
@@ -44,58 +44,60 @@ public class LevelMenu {
         for (int i = 0; i < 10; i++) {
             int level = i + 1;
             Material cartType;
-            String status;
             String[] levelDescription = getLevelDescription(level);
 
             if (level <= clan.getLevel()) {
                 cartType = Material.CHEST_MINECART;
-                status = ChatColor.GREEN + "✔ Открыто";
                 String[] lore = new String[]{
-                        status,
+                        "§a✔ Уровень достигнут",
                         "",
-                        ChatColor.WHITE + "Бонусы уровня:"
+                        "§6⚜ Активные бонусы:"
                 };
                 String[] fullLore = Arrays.copyOf(lore, lore.length + levelDescription.length);
                 System.arraycopy(levelDescription, 0, fullLore, lore.length, levelDescription.length);
 
-                ItemStack levelItem = createMenuItem(cartType,
-                        ChatColor.GOLD + "Уровень " + level,
+                inventory.setItem(levelSlots[i], createMenuItem(cartType,
+                        "§6✧ Уровень " + level,
                         "level_" + level,
-                        fullLore);
-                inventory.setItem(levelSlots[i], levelItem);
+                        fullLore));
 
             } else if (level == clan.getLevel() + 1) {
                 cartType = Material.FURNACE_MINECART;
                 String[] lore = new String[]{
-                        ChatColor.YELLOW + "⚡ Следующий уровень",
+                        "§e⚡ Следующий уровень",
                         "",
-                        ChatColor.GRAY + "Требуется опыта: " + clan.getExperience() + "/" + clan.getRequiredExperience(level),
+                        "§7Прогресс: §f" + clan.getExperience() + "§7/§f" + clan.getRequiredExperience(level),
+                        "§8" + createProgressBar(clan.getExperience(), clan.getRequiredExperience(level)),
                         "",
-                        ChatColor.WHITE + "Бонусы уровня:"
+                        "§6⚜ Доступные бонусы:"
                 };
 
                 String[] fullLore = Arrays.copyOf(lore, lore.length + levelDescription.length);
                 System.arraycopy(levelDescription, 0, fullLore, lore.length, levelDescription.length);
 
-                ItemStack levelItem = createMenuItem(cartType,
-                        ChatColor.GOLD + "Уровень " + level,
+                inventory.setItem(levelSlots[i], createMenuItem(cartType,
+                        "§e✧ Уровень " + level,
                         "level_" + level,
-                        fullLore);
-                inventory.setItem(levelSlots[i], levelItem);
+                        fullLore));
 
             } else {
                 cartType = Material.MINECART;
                 String[] lore = new String[]{
-                        ChatColor.RED + "✖ Закрыто",
+                        "§c✖ Уровень закрыт",
                         "",
-                        ChatColor.RED + "Требуется предыдущий уровень"
+                        "§7Требуется достичь предыдущего уровня",
+                        "§7для открытия этого уровня",
+                        "",
+                        "§6⚜ Будущие бонусы:"
                 };
 
-                ItemStack levelItem = createMenuItem(cartType,
-                        ChatColor.GOLD + "Уровень " + level,
+                String[] fullLore = Arrays.copyOf(lore, lore.length + levelDescription.length);
+                System.arraycopy(levelDescription, 0, fullLore, lore.length, levelDescription.length);
+
+                inventory.setItem(levelSlots[i], createMenuItem(cartType,
+                        "§7✧ Уровень " + level,
                         "level_" + level,
-                        lore);
-                inventory.setItem(levelSlots[i], levelItem);
+                        fullLore));
             }
         }
 
@@ -114,6 +116,16 @@ public class LevelMenu {
         }
     }
 
+    private String createProgressBar(int current, int max) {
+        int percentage = (int) ((current * 100.0f) / max);
+        int bars = percentage / 5;
+        StringBuilder bar = new StringBuilder("§a");
+        for (int i = 0; i < 20; i++) {
+            if (i == bars) bar.append("§7");
+            bar.append("▌");
+        }
+        return bar.toString();
+    }
 
     private ItemStack createMenuItem(Material material, String name, String action, String... lore) {
         ItemStack item = new ItemStack(material);

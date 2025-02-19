@@ -7,7 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class InvestCommand extends SubCommand {
-    private static final double MIN_AMOUNT = 10.0;
+    private static final int amount1 = 10;
 
     public InvestCommand(Clans plugin) {
         super(plugin);
@@ -16,7 +16,7 @@ public class InvestCommand extends SubCommand {
     @Override
     public boolean execute(Player player, String[] args) {
         if (args.length != 1) {
-            player.sendMessage("§6§lClans ❯ §fИспользование: /clan invest <сумма>");
+            player.sendMessage("§6§lClans ❯ §fИспользование: /clan deposit <сумма>");
             return true;
         }
 
@@ -26,16 +26,16 @@ public class InvestCommand extends SubCommand {
             return true;
         }
 
-        double amount;
+        int amount;
         try {
-            amount = Double.parseDouble(args[0]);
+            amount = Integer.parseInt(args[0]);
         } catch (NumberFormatException e) {
             player.sendMessage("§6§lClans ❯ §fВведите корректную сумму!");
             return true;
         }
 
-        if (amount < MIN_AMOUNT) {
-            player.sendMessage("§6§lClans ❯ §fМинимальная сумма для депозита: " + MIN_AMOUNT);
+        if (amount < amount1) {
+            player.sendMessage("§6§lClans ❯ §fМинимальная сумма для депозита: " + amount1);
             return true;
         }
 

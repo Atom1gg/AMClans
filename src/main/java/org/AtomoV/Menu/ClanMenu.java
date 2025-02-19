@@ -1,17 +1,15 @@
-package org.AtomoV.Interface;
+package org.AtomoV.Menu;
 
 import org.AtomoV.ClanUtil.Clan;
 import org.AtomoV.Clans;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Arrays;
@@ -36,37 +34,54 @@ public class ClanMenu {
 
     private void initializeItems() {
         ItemStack info = createMenuItem(Material.KNOWLEDGE_BOOK,
-                "§e✯ Статистика клана",
+                "§e⚔ Информация о клане",
                 "info",
-                "§fНазвание: §d" + clan.getName(),
-                "§fЛидер: §d" + Bukkit.getOfflinePlayer(clan.getLeader()).getName(),
-                "§fУчастников: §d" + clan.getMembers().size(),
-                "§fУровень: §e" + clan.getLevel() + "§f(§dXP " + clan.getExperience() +  "§f)",
-                "§fБаланс: §c" + clan.getBalance());
+                "§7▪ §fНазвание: §e" + clan.getName(),
+                "§7▪ §fЛидер: §e" + Bukkit.getOfflinePlayer(clan.getLeader()).getName(),
+                "§7▪ §fУчастников: §e" + clan.getMembers().size(),
+                "",
+                "§7▪ §fУровень: §d" + clan.getLevel(),
+                "§7▪ §fОпыт: §d" + clan.getExperience() + " §7XP",
+                "§7▪ §fОчки славы: §6" + clan.getPoints() + " §7₪",
+                "§7▪ §fБаланс: §a" + clan.getBalance() + " §7$");
 
         ItemStack members = createMenuItem(Material.TOTEM_OF_UNDYING,
-                ChatColor.GOLD + "Участники клана",
+                "§6⚜ Участники клана",
                 "members",
-                ChatColor.GRAY + "Всего участников: " + clan.getMembers().size(),
-                ChatColor.GRAY + "Нажмите, чтобы",
-                ChatColor.GRAY + "посмотреть список");
+                "§7▪ §fВсего участников: §e" + clan.getMembers().size(),
+                "",
+                "§e➜ Нажмите, чтобы просмотреть",
+                "§e   список участников клана");
 
         ItemStack level = createMenuItem(Material.EXPERIENCE_BOTTLE,
-                ChatColor.AQUA + "Уровень клана",
+                "§b✧ Уровни клана",
                 "level",
-                ChatColor.GRAY + "Уровень клана: " + clan.getLevel());
+                "§7▪ §fТекущий уровень: §d" + clan.getLevel(),
+                "",
+                "§e➜ Нажмите, чтобы просмотреть",
+                "§e   доступные улучшения");
 
-        ItemStack design = createMenuItem(Material.NAME_TAG,
-                ChatColor.YELLOW + "Дизайн клана",
-                "design",
-                ChatColor.GRAY + "Нажмите, чтобы",
-                ChatColor.GRAY + "настроить дизайн");
+        ItemStack quest = createMenuItem(Material.WRITABLE_BOOK,
+                "§2❈ Ежедневные квесты",
+                "quest",
+                "§7▪ §fДоступно квестов: §a" + plugin.getQuestManager().getClanQuests(clan).size(),
+                "",
+                "§e➜ Нажмите, чтобы просмотреть",
+                "§e   активные задания");
 
+        ItemStack shop = createMenuItem(Material.EMERALD,
+                "§a❂ Клановый магазин",
+                "shop",
+                "§7▪ §fАктивных предложений: §e2",
+                "",
+                "§e➜ Нажмите, чтобы открыть",
+                "§e   магазин клана");
 
-        inventory.setItem(20, info);
-        inventory.setItem(11, members);
-        inventory.setItem(12, level);
-        inventory.setItem(28, design);
+        inventory.setItem(22, info);
+        inventory.setItem(21, members);
+        inventory.setItem(23, quest);
+        inventory.setItem(31, shop);
+        inventory.setItem(13, level);
 
         ItemStack filler = createDecoration(Material.WHITE_STAINED_GLASS_PANE, " ");
         int[] sideSlots = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44};

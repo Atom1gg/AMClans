@@ -7,7 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class WithdrawCommand extends SubCommand {
-    private static final double MIN_AMOUNT = 10.0;
+    private static final double amount1 = 10;
 
     public WithdrawCommand(Clans plugin) {
         super(plugin);
@@ -31,15 +31,15 @@ public class WithdrawCommand extends SubCommand {
             return true;
         }
 
-        double amount;
+        int amount;
         try {
-            amount = Double.parseDouble(args[0]);
+            amount = Integer.parseInt(args[0]);
         } catch (NumberFormatException e) {
             player.sendMessage("§6§lClans ❯ §fВведите корректную сумму!");
             return true;
         }
 
-        if (amount < MIN_AMOUNT) {
+        if (amount < amount1) {
             player.sendMessage("§6§lClans ❯ §fВведите корректную сумму!");
             return true;
         }

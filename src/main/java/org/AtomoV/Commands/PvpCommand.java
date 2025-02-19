@@ -27,7 +27,7 @@ public class PvpCommand extends SubCommand {
         clan.setPvpEnabled(!clan.isPvpEnabled());
         DataBaseManager.saveClan(clan);
 
-        String status = clan.isPvpEnabled() ? "§aвключен" : "§eвыключен";
+        String status = clan.isPvpEnabled() ? "§aвключен" : "§cвыключен";
         player.sendMessage("§6§lClans ❯ §fPvP режим " + status);
 
         return true;

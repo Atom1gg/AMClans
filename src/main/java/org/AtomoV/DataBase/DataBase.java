@@ -41,6 +41,7 @@ public class DataBase {
                             "level INT DEFAULT 1," +
                             "experience INT DEFAULT 0," +
                             "balance DECIMAL(20,2) DEFAULT 0," +
+                            "points INT DEFAULT 0," +
                             "pvp_enabled BOOLEAN DEFAULT FALSE," +
                             "glow_enabled BOOLEAN DEFAULT FALSE," +
                             "home_world VARCHAR(100)," +
@@ -49,6 +50,11 @@ public class DataBase {
                             "home_z DOUBLE" +
                             ")"
             );
+
+            try {
+                stmt.executeUpdate("ALTER TABLE clans ADD COLUMN points INT DEFAULT 0");
+            } catch (SQLException e) {
+            }
 
             stmt.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS clan_members (" +
@@ -70,6 +76,21 @@ public class DataBase {
                             ")"
             );
 
+            stmt.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS clan_quests (" +
+                            "clan_id INT," +
+                            "quest_type VARCHAR(32)," +
+                            "target INT," +
+                            "progress INT DEFAULT 0," +
+                            "completed BOOLEAN DEFAULT FALSE," +
+                            "reward_exp INT," +
+                            "reward_points INT," +
+                            "reward_donate INT," +
+                            "last_reset BIGINT," +
+                            "FOREIGN KEY (clan_id) REFERENCES clans(id) ON DELETE CASCADE," +
+                            "PRIMARY KEY (clan_id, quest_type)" +
+                            ")"
+            );
         } catch (SQLException e) {
             plugin.getLogger().severe("Ошибка создания таблиц: " + e.getMessage());
             e.printStackTrace();

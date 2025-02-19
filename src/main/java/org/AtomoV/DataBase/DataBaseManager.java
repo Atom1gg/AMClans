@@ -1,6 +1,9 @@
 package org.AtomoV.DataBase;
 
 import org.AtomoV.ClanUtil.Clan;
+import org.AtomoV.Quest.Quest;
+import org.AtomoV.Quest.QuestReward;
+import org.AtomoV.Quest.QuestType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
@@ -9,66 +12,81 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 public class DataBaseManager {
 
     public static void saveClan(Clan clan) {
         try {
+            PreparedStatement checkPs = DataBase.getConnection().prepareStatement(
+                    "SELECT id FROM clans WHERE name = ?"
+            );
+            checkPs.setString(1, clan.getName());
+            ResultSet checkRs = checkPs.executeQuery();
+            if (checkRs.next()) {
+                clan.setId(checkRs.getInt("id"));
+            }
+
             PreparedStatement ps = DataBase.getConnection().prepareStatement(
-                    "INSERT INTO clans (name, leader, level, experience, balance, pvp_enabled, glow_enabled, " +
-                            "home_world, home_x, home_y, home_z) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
-                            "ON DUPLICATE KEY UPDATE leader=?, level=?, experience=?, balance=?, " +
-                            "pvp_enabled=?, glow_enabled=?, home_world=?, home_x=?, home_y=?, home_z=?"
+                    "INSERT INTO clans (name, leader, level, experience, balance, points, pvp_enabled, glow_enabled, " +
+                            "home_world, home_x, home_y, home_z) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                            "ON DUPLICATE KEY UPDATE leader=?, level=?, experience=?, balance=?, points=?, " +
+                            "pvp_enabled=?, glow_enabled=?, home_world=?, home_x=?, home_y=?, home_z=?",
+                    Statement.RETURN_GENERATED_KEYS
             );
 
-            // Заполняем данные для INSERT
             ps.setString(1, clan.getName());
             ps.setString(2, clan.getLeader().toString());
             ps.setInt(3, clan.getLevel());
             ps.setInt(4, clan.getExperience());
             ps.setDouble(5, clan.getBalance());
-            ps.setBoolean(6, clan.isPvpEnabled());
-            ps.setBoolean(7, clan.isGlowEnabled());
+            ps.setInt(6, clan.getPoints());
+            ps.setBoolean(7, clan.isPvpEnabled());
+            ps.setBoolean(8, clan.isGlowEnabled());
 
             Location home = clan.getHome();
             if (home != null) {
-                ps.setString(8, home.getWorld().getName());
-                ps.setDouble(9, home.getX());
-                ps.setDouble(10, home.getY());
-                ps.setDouble(11, home.getZ());
+                ps.setString(9, home.getWorld().getName());
+                ps.setDouble(10, home.getX());
+                ps.setDouble(11, home.getY());
+                ps.setDouble(12, home.getZ());
             } else {
-                ps.setNull(8, java.sql.Types.VARCHAR);
-                ps.setNull(9, java.sql.Types.DOUBLE);
+                ps.setNull(9, java.sql.Types.VARCHAR);
                 ps.setNull(10, java.sql.Types.DOUBLE);
                 ps.setNull(11, java.sql.Types.DOUBLE);
+                ps.setNull(12, java.sql.Types.DOUBLE);
             }
 
-            // Заполняем данные для UPDATE
-            ps.setString(12, clan.getLeader().toString());
-            ps.setInt(13, clan.getLevel());
-            ps.setInt(14, clan.getExperience());
-            ps.setDouble(15, clan.getBalance());
-            ps.setBoolean(16, clan.isPvpEnabled());
-            ps.setBoolean(17, clan.isGlowEnabled());
+            ps.setString(13, clan.getLeader().toString());
+            ps.setInt(14, clan.getLevel());
+            ps.setInt(15, clan.getExperience());
+            ps.setDouble(16, clan.getBalance());
+            ps.setInt(17, clan.getPoints());
+            ps.setBoolean(18, clan.isPvpEnabled());
+            ps.setBoolean(19, clan.isGlowEnabled());
 
             if (home != null) {
-                ps.setString(18, home.getWorld().getName());
-                ps.setDouble(19, home.getX());
-                ps.setDouble(20, home.getY());
-                ps.setDouble(21, home.getZ());
+                ps.setString(20, home.getWorld().getName());
+                ps.setDouble(21, home.getX());
+                ps.setDouble(22, home.getY());
+                ps.setDouble(23, home.getZ());
             } else {
-                ps.setNull(18, java.sql.Types.VARCHAR);
-                ps.setNull(19, java.sql.Types.DOUBLE);
-                ps.setNull(20, java.sql.Types.DOUBLE);
+                ps.setNull(20, java.sql.Types.VARCHAR);
                 ps.setNull(21, java.sql.Types.DOUBLE);
+                ps.setNull(22, java.sql.Types.DOUBLE);
+                ps.setNull(23, java.sql.Types.DOUBLE);
             }
 
             ps.executeUpdate();
+
+            if (clan.getId() == 0) {
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    clan.setId(rs.getInt(1));
+                }
+            }
+
             saveMembers(clan);
             saveStorage(clan);
 
@@ -76,7 +94,6 @@ public class DataBaseManager {
             e.printStackTrace();
         }
     }
-
     public static void saveMembers(Clan clan) {
         try {
             PreparedStatement deletePs = DataBase.getConnection().prepareStatement(
@@ -138,7 +155,8 @@ public class DataBaseManager {
                 clan.setId(rs.getInt("id"));
                 clan.setLevel(rs.getInt("level"));
                 clan.setExperience(rs.getInt("experience"));
-                clan.setBalance(rs.getDouble("balance"));
+                clan.setBalance(rs.getInt("balance"));
+                clan.addPoints(rs.getInt("points"));
                 clan.setPvpEnabled(rs.getBoolean("pvp_enabled"));
                 clan.setGlowEnabled(rs.getBoolean("glow_enabled"));
 
@@ -238,6 +256,93 @@ public class DataBaseManager {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public static void saveQuests(UUID playerUuid, List<Quest> quests) {
+        try {
+            Connection conn = DataBase.getConnection();
+            PreparedStatement ps = conn.prepareStatement(
+                    "INSERT INTO clan_quests (clan_id, quest_type, target, progress, completed, " +
+                            "reward_exp, reward_points, reward_donate, last_reset) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                            "ON DUPLICATE KEY UPDATE progress=?, completed=?"
+            );
+
+            Clan clan = DataBase.plugin.getClanManager().getPlayerClan(playerUuid);
+            if (clan == null) return;
+
+            for (Quest quest : quests) {
+                ps.setInt(1, clan.getId());
+                ps.setString(2, quest.getType().name());
+                ps.setInt(3, quest.getTarget());
+                ps.setInt(4, quest.getProgress());
+                ps.setBoolean(5, quest.isCompleted());
+                ps.setInt(6, quest.getReward().getClanExp());
+                ps.setInt(7, quest.getReward().getClanPoints());
+                ps.setInt(8, quest.getReward().getDonatePoints());
+                ps.setLong(9, System.currentTimeMillis());
+
+                ps.setInt(10, quest.getProgress());
+                ps.setBoolean(11, quest.isCompleted());
+
+                ps.addBatch();
+            }
+
+            ps.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<Quest> loadQuests(UUID playerUuid) {
+        List<Quest> quests = new ArrayList<>();
+        try {
+            Clan clan = DataBase.plugin.getClanManager().getPlayerClan(playerUuid);
+            if (clan == null) return quests;
+
+            PreparedStatement ps = DataBase.getConnection().prepareStatement(
+                    "SELECT * FROM clan_quests WHERE clan_id = ?"
+            );
+            ps.setInt(1, clan.getId());
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                QuestType type = QuestType.valueOf(rs.getString("quest_type"));
+                int target = rs.getInt("target");
+                int progress = rs.getInt("progress");
+                boolean completed = rs.getBoolean("completed");
+
+                QuestReward reward = new QuestReward(
+                        rs.getInt("reward_exp"),
+                        rs.getInt("reward_points"),
+                        rs.getInt("reward_donate")
+                );
+
+                Quest quest = new Quest(type.getDisplayName(), type, target, reward);
+                quest.setProgress(progress);
+                if (completed) quest.complete();
+
+                quests.add(quest);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return quests;
+    }
+
+    public static void deleteQuests(UUID playerUuid) {
+        try {
+            Clan clan = DataBase.plugin.getClanManager().getPlayerClan(playerUuid);
+            if (clan == null) return;
+
+            PreparedStatement ps = DataBase.getConnection().prepareStatement(
+                    "DELETE FROM clan_quests WHERE clan_id = ?"
+            );
+            ps.setInt(1, clan.getId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

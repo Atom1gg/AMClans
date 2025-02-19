@@ -1,8 +1,7 @@
 package org.AtomoV.Commands;
 
 import org.AtomoV.Clans;
-import org.AtomoV.Interface.ClanMenu;
-import org.bukkit.ChatColor;
+import org.AtomoV.Menu.ClanMenu;
 import org.bukkit.entity.Player;
 
 public class MenuCommand extends SubCommand {

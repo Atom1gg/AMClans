@@ -28,8 +28,7 @@ public class ChatCommand extends SubCommand {
 
         String message = String.join(" ", args);
         String prefix = clan.getPrefix(player.getUniqueId());
-        String format = ChatColor.GOLD + "[Клан] " + prefix + " " +
-                ChatColor.YELLOW + player.getName() + ChatColor.WHITE + ": " + message;
+        String format =  "§6§lClans ❯ §8" + player.getName()  + "§f: " + message;
 
         for (UUID member : clan.getMembers()) {
             Player memberPlayer = Bukkit.getPlayer(member);
