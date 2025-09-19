@@ -1977,9 +1977,9 @@ function createMainUI()
         end
 
         -- Создаем окно настроек GUI в ScreenGui
-        guiSettingsFrame = Instance.new("Frame")
-        guiSettingsFrame.Size = UDim2.new(0, 480, 0, 280)
-        guiSettingsFrame.Position = UDim2.new(0.5, -690, 0.5, -140)
+       guiSettingsFrame = Instance.new("Frame")
+        guiSettingsFrame.Size = UDim2.new(0, 280, 0, 480)
+        guiSettingsFrame.Position = UDim2.new(0.5, -590, 0.5, -240)
         guiSettingsFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
         guiSettingsFrame.BorderSizePixel = 0
         guiSettingsFrame.ZIndex = ZINDEX.MAIN_FRAME + 20
