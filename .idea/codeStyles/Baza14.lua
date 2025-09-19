@@ -1936,7 +1936,7 @@ function createMainUI()
     addCategory("http://www.roblox.com/asset/?id=124280107087786", "Utility")
     addCategory("http://www.roblox.com/asset/?id=109730932565942", "Combat")
 
-        -- Добавляем кнопку настроек GUI
+ -- Добавляем кнопку настроек GUI
     local guiSettingsButton = Instance.new("Frame")
     guiSettingsButton.Size = UDim2.new(0, 50, 0, 50)
     guiSettingsButton.Position = UDim2.new(0, 5, 0, 5)
@@ -1976,42 +1976,88 @@ function createMainUI()
             guiSettingsFrame = nil
         end
 
-        -- Создаем окно настроек GUI
+        -- Создаем окно настроек GUI в ScreenGui
         guiSettingsFrame = Instance.new("Frame")
-        guiSettingsFrame.Size = UDim2.new(0, 480, 0, 980)
-        guiSettingsFrame.Position = UDim2.new(0, -490, 0, 0)
+        guiSettingsFrame.Size = UDim2.new(0, 480, 0, 280)
+        guiSettingsFrame.Position = UDim2.new(0.5, -690, 0.5, -140)
         guiSettingsFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
         guiSettingsFrame.BorderSizePixel = 0
-        guiSettingsFrame.ZIndex = mainFrame.ZIndex + 10
-        guiSettingsFrame.Parent = mainFrame
+        guiSettingsFrame.ZIndex = ZINDEX.MAIN_FRAME + 20
+        guiSettingsFrame.Parent = screenGui
 
         local guiSettingsFrameCorner = Instance.new("UICorner")
         guiSettingsFrameCorner.CornerRadius = UDim.new(0, 8)
         guiSettingsFrameCorner.Parent = guiSettingsFrame
 
+        -- Система перетаскивания для окна настроек
+        local settingsDragging = false
+        local settingsDragStart
+        local settingsStartPos
+
+        local settingsTopBar = Instance.new("Frame")
+        settingsTopBar.Size = UDim2.new(1, 0, 0, 50)
+        settingsTopBar.Position = UDim2.new(0, 0, 0, 0)
+        settingsTopBar.BackgroundTransparency = 1
+        settingsTopBar.ZIndex = guiSettingsFrame.ZIndex + 1
+        settingsTopBar.Parent = guiSettingsFrame
+
+        local function updateSettingsDrag(input)
+            local delta = input.Position - settingsDragStart
+            local position = UDim2.new(
+                settingsStartPos.X.Scale,
+                math.floor(settingsStartPos.X.Offset + delta.X),
+                settingsStartPos.Y.Scale,
+                math.floor(settingsStartPos.Y.Offset + delta.Y)
+            )
+            guiSettingsFrame.Position = position
+        end
+
+        settingsTopBar.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                settingsDragging = true
+                settingsDragStart = input.Position
+                settingsStartPos = guiSettingsFrame.Position
+
+                local connection
+                connection = UIS.InputEnded:Connect(function(inputEnd)
+                    if inputEnd.UserInputType == Enum.UserInputType.MouseButton1 then
+                        settingsDragging = false
+                        connection:Disconnect()
+                    end
+                end)
+            end
+        end)
+
+        UIS.InputChanged:Connect(function(input)
+            if settingsDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                updateSettingsDrag(input)
+            end
+        end)
+
         -- Заголовок
         local titleLabel = Instance.new("TextLabel")
         titleLabel.Size = UDim2.new(1, -50, 0, 50)
-        titleLabel.Position = UDim2.new(0, 20, 0, 20)
+        titleLabel.Position = UDim2.new(0, 20, 0, 0)
         titleLabel.BackgroundTransparency = 1
         titleLabel.Text = "GUI Settings"
         titleLabel.TextColor3 = Color3.fromRGB(255, 75, 75)
         titleLabel.Font = Enum.Font.GothamBold
-        titleLabel.TextSize = 24
+        titleLabel.TextSize = 20
         titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        titleLabel.TextYAlignment = Enum.TextYAlignment.Center
         titleLabel.ZIndex = guiSettingsFrame.ZIndex + 1
         titleLabel.Parent = guiSettingsFrame
 
         -- Кнопка закрытия (крестик)
         local closeButton = Instance.new("TextButton")
         closeButton.Size = UDim2.new(0, 30, 0, 30)
-        closeButton.Position = UDim2.new(1, -40, 0, 20)
+        closeButton.Position = UDim2.new(1, -40, 0, 10)
         closeButton.BackgroundColor3 = Color3.fromRGB(25, 25, 27)
         closeButton.BorderSizePixel = 0
         closeButton.Text = "✕"
         closeButton.TextColor3 = Color3.fromRGB(200, 200, 200)
         closeButton.Font = Enum.Font.GothamBold
-        closeButton.TextSize = 16
+        closeButton.TextSize = 14
         closeButton.ZIndex = guiSettingsFrame.ZIndex + 1
         closeButton.Parent = guiSettingsFrame
 
@@ -2036,47 +2082,31 @@ function createMainUI()
             closeGuiSettings()
         end)
 
-        -- Контент настроек (пока что просто пример)
+        -- Контент настроек
         local contentFrame = Instance.new("Frame")
-        contentFrame.Size = UDim2.new(1, -20, 1, -90)
-        contentFrame.Position = UDim2.new(0, 10, 0, 80)
+        contentFrame.Size = UDim2.new(1, -20, 1, -70)
+        contentFrame.Position = UDim2.new(0, 10, 0, 60)
         contentFrame.BackgroundTransparency = 1
         contentFrame.ZIndex = guiSettingsFrame.ZIndex + 1
         contentFrame.Parent = guiSettingsFrame
 
         local exampleLabel = Instance.new("TextLabel")
-        exampleLabel.Size = UDim2.new(1, 0, 0, 50)
+        exampleLabel.Size = UDim2.new(1, 0, 0, 30)
         exampleLabel.Position = UDim2.new(0, 10, 0, 10)
         exampleLabel.BackgroundTransparency = 1
         exampleLabel.Text = "GUI Settings will be implemented here"
         exampleLabel.TextColor3 = Color3.fromRGB(150, 153, 163)
         exampleLabel.Font = Enum.Font.Gotham
-        exampleLabel.TextSize = 18
+        exampleLabel.TextSize = 16
         exampleLabel.TextXAlignment = Enum.TextXAlignment.Left
         exampleLabel.ZIndex = contentFrame.ZIndex + 1
         exampleLabel.Parent = contentFrame
-
-        -- Анимация появления
-        guiSettingsFrame.Position = UDim2.new(0, -480, 0, 0)
-        local showTween = TweenService:Create(guiSettingsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Position = UDim2.new(0, -490, 0, 0)
-        })
-        showTween:Play()
     end
 
     local function closeGuiSettings()
         if guiSettingsFrame then
-            -- Анимация скрытия
-            local hideTween = TweenService:Create(guiSettingsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-                Position = UDim2.new(0, -480, 0, 0)
-            })
-            hideTween:Play()
-            hideTween.Completed:Connect(function()
-                if guiSettingsFrame then
-                    guiSettingsFrame:Destroy()
-                    guiSettingsFrame = nil
-                end
-            end)
+            guiSettingsFrame:Destroy()
+            guiSettingsFrame = nil
         end
         
         guiSettingsOpen = false
