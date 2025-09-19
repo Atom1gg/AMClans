@@ -1935,6 +1935,204 @@ function createMainUI()
     addCategory("http://www.roblox.com/asset/?id=85568792810849", "Player")
     addCategory("http://www.roblox.com/asset/?id=124280107087786", "Utility")
     addCategory("http://www.roblox.com/asset/?id=109730932565942", "Combat")
+
+        -- Добавляем кнопку настроек GUI
+    local guiSettingsButton = Instance.new("Frame")
+    guiSettingsButton.Size = UDim2.new(0, 50, 0, 50)
+    guiSettingsButton.Position = UDim2.new(0, 5, 0, 5)
+    guiSettingsButton.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
+    guiSettingsButton.BorderSizePixel = 0
+    guiSettingsButton.ZIndex = categoryList.ZIndex + 1
+    guiSettingsButton.Parent = categoryList
+
+    local guiSettingsCorner = Instance.new("UICorner")
+    guiSettingsCorner.CornerRadius = UDim.new(0, 8)
+    guiSettingsCorner.Parent = guiSettingsButton
+
+    local settingsIcon = Instance.new("ImageLabel")
+    settingsIcon.Size = UDim2.new(0, 30, 0, 30)
+    settingsIcon.Position = UDim2.new(0.5, -15, 0.5, -15)
+    settingsIcon.BackgroundTransparency = 1
+    settingsIcon.Image = "http://www.roblox.com/asset/?id=6031280882"
+    settingsIcon.ImageColor3 = Color3.fromRGB(150, 150, 150)
+    settingsIcon.ZIndex = guiSettingsButton.ZIndex + 1
+    settingsIcon.Parent = guiSettingsButton
+
+    local guiSettingsClickDetector = Instance.new("TextButton")
+    guiSettingsClickDetector.Size = UDim2.new(1, 0, 1, 0)
+    guiSettingsClickDetector.BackgroundTransparency = 1
+    guiSettingsClickDetector.Text = ""
+    guiSettingsClickDetector.ZIndex = guiSettingsButton.ZIndex + 2
+    guiSettingsClickDetector.Parent = guiSettingsButton
+
+    -- Переменная для отслеживания состояния окна настроек
+    local guiSettingsOpen = false
+    local guiSettingsFrame = nil
+
+    local function createGuiSettingsWindow()
+        -- Удаляем существующее окно если есть
+        if guiSettingsFrame then
+            guiSettingsFrame:Destroy()
+            guiSettingsFrame = nil
+        end
+
+        -- Создаем окно настроек GUI
+        guiSettingsFrame = Instance.new("Frame")
+        guiSettingsFrame.Size = UDim2.new(0, 480, 0, 980)
+        guiSettingsFrame.Position = UDim2.new(0, -490, 0, 0)
+        guiSettingsFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
+        guiSettingsFrame.BorderSizePixel = 0
+        guiSettingsFrame.ZIndex = mainFrame.ZIndex + 10
+        guiSettingsFrame.Parent = mainFrame
+
+        local guiSettingsFrameCorner = Instance.new("UICorner")
+        guiSettingsFrameCorner.CornerRadius = UDim.new(0, 8)
+        guiSettingsFrameCorner.Parent = guiSettingsFrame
+
+        -- Заголовок
+        local titleLabel = Instance.new("TextLabel")
+        titleLabel.Size = UDim2.new(1, -50, 0, 50)
+        titleLabel.Position = UDim2.new(0, 20, 0, 20)
+        titleLabel.BackgroundTransparency = 1
+        titleLabel.Text = "GUI Settings"
+        titleLabel.TextColor3 = Color3.fromRGB(255, 75, 75)
+        titleLabel.Font = Enum.Font.GothamBold
+        titleLabel.TextSize = 24
+        titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        titleLabel.ZIndex = guiSettingsFrame.ZIndex + 1
+        titleLabel.Parent = guiSettingsFrame
+
+        -- Кнопка закрытия (крестик)
+        local closeButton = Instance.new("TextButton")
+        closeButton.Size = UDim2.new(0, 30, 0, 30)
+        closeButton.Position = UDim2.new(1, -40, 0, 20)
+        closeButton.BackgroundColor3 = Color3.fromRGB(25, 25, 27)
+        closeButton.BorderSizePixel = 0
+        closeButton.Text = "✕"
+        closeButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+        closeButton.Font = Enum.Font.GothamBold
+        closeButton.TextSize = 16
+        closeButton.ZIndex = guiSettingsFrame.ZIndex + 1
+        closeButton.Parent = guiSettingsFrame
+
+        local closeButtonCorner = Instance.new("UICorner")
+        closeButtonCorner.CornerRadius = UDim.new(0, 4)
+        closeButtonCorner.Parent = closeButton
+
+        -- Hover эффект для кнопки закрытия
+        closeButton.MouseEnter:Connect(function()
+            TweenService:Create(closeButton, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(255, 75, 75)
+            }):Play()
+        end)
+
+        closeButton.MouseLeave:Connect(function()
+            TweenService:Create(closeButton, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(25, 25, 27)
+            }):Play()
+        end)
+
+        closeButton.MouseButton1Click:Connect(function()
+            closeGuiSettings()
+        end)
+
+        -- Контент настроек (пока что просто пример)
+        local contentFrame = Instance.new("Frame")
+        contentFrame.Size = UDim2.new(1, -20, 1, -90)
+        contentFrame.Position = UDim2.new(0, 10, 0, 80)
+        contentFrame.BackgroundTransparency = 1
+        contentFrame.ZIndex = guiSettingsFrame.ZIndex + 1
+        contentFrame.Parent = guiSettingsFrame
+
+        local exampleLabel = Instance.new("TextLabel")
+        exampleLabel.Size = UDim2.new(1, 0, 0, 50)
+        exampleLabel.Position = UDim2.new(0, 10, 0, 10)
+        exampleLabel.BackgroundTransparency = 1
+        exampleLabel.Text = "GUI Settings will be implemented here"
+        exampleLabel.TextColor3 = Color3.fromRGB(150, 153, 163)
+        exampleLabel.Font = Enum.Font.Gotham
+        exampleLabel.TextSize = 18
+        exampleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        exampleLabel.ZIndex = contentFrame.ZIndex + 1
+        exampleLabel.Parent = contentFrame
+
+        -- Анимация появления
+        guiSettingsFrame.Position = UDim2.new(0, -480, 0, 0)
+        local showTween = TweenService:Create(guiSettingsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0, -490, 0, 0)
+        })
+        showTween:Play()
+    end
+
+    local function closeGuiSettings()
+        if guiSettingsFrame then
+            -- Анимация скрытия
+            local hideTween = TweenService:Create(guiSettingsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                Position = UDim2.new(0, -480, 0, 0)
+            })
+            hideTween:Play()
+            hideTween.Completed:Connect(function()
+                if guiSettingsFrame then
+                    guiSettingsFrame:Destroy()
+                    guiSettingsFrame = nil
+                end
+            end)
+        end
+        
+        guiSettingsOpen = false
+        -- Убираем подсветку кнопки
+        TweenService:Create(guiSettingsButton, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(15, 15, 17)
+        }):Play()
+        TweenService:Create(settingsIcon, TweenInfo.new(0.2), {
+            ImageColor3 = Color3.fromRGB(150, 150, 150)
+        }):Play()
+    end
+
+    -- Hover эффекты для кнопки настроек
+    guiSettingsClickDetector.MouseEnter:Connect(function()
+        if not guiSettingsOpen then
+            TweenService:Create(settingsIcon, TweenInfo.new(0.2), {
+                ImageColor3 = Color3.fromRGB(200, 200, 200)
+            }):Play()
+        end
+    end)
+
+    guiSettingsClickDetector.MouseLeave:Connect(function()
+        if not guiSettingsOpen then
+            TweenService:Create(settingsIcon, TweenInfo.new(0.2), {
+                ImageColor3 = Color3.fromRGB(150, 150, 150)
+            }):Play()
+        end
+    end)
+
+    -- Обработчик клика по кнопке настроек
+    guiSettingsClickDetector.MouseButton1Click:Connect(function()
+        if not guiSettingsOpen then
+            -- Открываем настройки
+            guiSettingsOpen = true
+            createGuiSettingsWindow()
+            
+            -- Подсвечиваем кнопку
+            TweenService:Create(guiSettingsButton, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(22, 28, 30)
+            }):Play()
+            TweenService:Create(settingsIcon, TweenInfo.new(0.2), {
+                ImageColor3 = Color3.fromRGB(255, 255, 255)
+            }):Play()
+        else
+            -- Закрываем настройки
+            closeGuiSettings()
+        end
+    end)
+
+    -- Привязываем к основному фрейму - при скрытии GUI скрываем и настройки
+    local originalVisibleChanged
+    originalVisibleChanged = mainFrame:GetPropertyChangedSignal("Visible"):Connect(function()
+        if not mainFrame.Visible and guiSettingsOpen then
+            closeGuiSettings()
+        end
+    end)
     
     local settingsContainer = Instance.new("Frame")
     settingsContainer.Name = "SettingsContainer"
