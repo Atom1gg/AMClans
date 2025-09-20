@@ -1756,7 +1756,7 @@ function createMainUI()
         end
     end)
     
-    local categoryFrame = Instance.new("Frame")
+local categoryFrame = Instance.new("Frame")
 categoryFrame.Size = UDim2.new(0, 75, 1, -6)
 categoryFrame.Position = UDim2.new(0, 3, 0, 3)
 categoryFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
@@ -1764,73 +1764,31 @@ categoryFrame.BorderSizePixel = 0
 categoryFrame.ZIndex = mainFrame.ZIndex + 1
 categoryFrame.Parent = mainFrame
 
--- Контейнер для основных категорий (уменьшенный по высоте)
-local categoryContainer = Instance.new("Frame")
-categoryContainer.Size = UDim2.new(1, -6, 1, -120) -- Уменьшили высоту на 120 пикселей для кнопки настроек
-categoryContainer.Position = UDim2.new(0, 3, 0, 3)
-categoryContainer.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
-categoryContainer.BorderSizePixel = 0
-categoryContainer.ZIndex = categoryFrame.ZIndex + 1
-categoryContainer.Parent = categoryFrame
+    -- Контейнер для основных категорий (уменьшенный по высоте)
+    local categoryContainer = Instance.new("Frame")
+    categoryContainer.Size = UDim2.new(1, -6, 1, -120) -- Уменьшили высоту на 120 пикселей для кнопки настроек
+    categoryContainer.Position = UDim2.new(0, 3, 0, 3)
+    categoryContainer.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
+    categoryContainer.BorderSizePixel = 0
+    categoryContainer.ZIndex = categoryFrame.ZIndex + 1
+    categoryContainer.Parent = categoryFrame
 
-local categoryContainerCorner = Instance.new("UICorner")
-categoryContainerCorner.CornerRadius = UDim.new(0, 6)
-categoryContainerCorner.Parent = categoryContainer
+    local categoryContainerCorner = Instance.new("UICorner")
+    categoryContainerCorner.CornerRadius = UDim.new(0, 6)
+    categoryContainerCorner.Parent = categoryContainer
 
-local categoryList = Instance.new("ScrollingFrame")
-categoryList.Size = UDim2.new(1, 0, 1, 0)
-categoryList.Position = UDim2.new(0, 12, 0, 100)
-categoryList.BackgroundTransparency = 1
-categoryList.ScrollBarThickness = 0
-categoryList.CanvasSize = UDim2.new(0, 0, 0, 500)
-categoryList.ZIndex = categoryContainer.ZIndex + 1
-categoryList.Parent = categoryContainer
+    local categoryList = Instance.new("ScrollingFrame")
+    categoryList.Size = UDim2.new(1, 0, 1, 0)
+    categoryList.Position = UDim2.new(0, 12, 0, 100)
+    categoryList.BackgroundTransparency = 1
+    categoryList.ScrollBarThickness = 0
+    categoryList.CanvasSize = UDim2.new(0, 0, 0, 500)
+    categoryList.ZIndex = categoryContainer.ZIndex + 1
+    categoryList.Parent = categoryContainer
 
-local categoryLayout = Instance.new("UIListLayout")
-categoryLayout.Padding = UDim.new(0, 30)
-categoryLayout.Parent = categoryList
-
--- Контейнер для кнопки настроек (отдельный блок внизу)
-local settingsContainer = Instance.new("Frame")
-settingsContainer.Size = UDim2.new(1, -6, 0, 60) -- Фиксированная высота для кнопки настроек
-settingsContainer.Position = UDim2.new(0, 3, 1, -65) -- Позиция внизу с отступом 5 пикселей
-settingsContainer.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
-settingsContainer.BorderSizePixel = 0
-settingsContainer.ZIndex = categoryFrame.ZIndex + 1
-settingsContainer.Parent = categoryFrame
-
-local settingsContainerCorner = Instance.new("UICorner")
-settingsContainerCorner.CornerRadius = UDim.new(0, 6)
-settingsContainerCorner.Parent = settingsContainer
-
--- Добавляем кнопку настроек GUI в отдельный контейнер
-local guiSettingsButton = Instance.new("Frame")
-guiSettingsButton.Size = UDim2.new(0, 50, 0, 50)
-guiSettingsButton.Position = UDim2.new(0.5, -25, 0.5, -25) -- Центрируем в контейнере
-guiSettingsButton.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
-guiSettingsButton.BorderSizePixel = 0
-guiSettingsButton.ZIndex = settingsContainer.ZIndex + 1
-guiSettingsButton.Parent = settingsContainer
-
-local guiSettingsCorner = Instance.new("UICorner")
-guiSettingsCorner.CornerRadius = UDim.new(0, 8)
-guiSettingsCorner.Parent = guiSettingsButton
-
-local settingsIcon = Instance.new("ImageLabel")
-settingsIcon.Size = UDim2.new(0, 30, 0, 30)
-settingsIcon.Position = UDim2.new(0.5, -15, 0.5, -15)
-settingsIcon.BackgroundTransparency = 1
-settingsIcon.Image = "http://www.roblox.com/asset/?id=6031280882"
-settingsIcon.ImageColor3 = Color3.fromRGB(150, 150, 150)
-settingsIcon.ZIndex = guiSettingsButton.ZIndex + 1
-settingsIcon.Parent = guiSettingsButton
-
-local guiSettingsClickDetector = Instance.new("TextButton")
-guiSettingsClickDetector.Size = UDim2.new(1, 0, 1, 0)
-guiSettingsClickDetector.BackgroundTransparency = 1
-guiSettingsClickDetector.Text = ""
-guiSettingsClickDetector.ZIndex = guiSettingsButton.ZIndex + 2
-guiSettingsClickDetector.Parent = guiSettingsButton
+    local categoryLayout = Instance.new("UIListLayout")
+    categoryLayout.Padding = UDim.new(0, 30)
+    categoryLayout.Parent = categoryList
 
     local ModuleFrame = Instance.new("Frame")
     ModuleFrame.Size = UDim2.new(0, 150, 1, -6)
@@ -2221,17 +2179,45 @@ guiSettingsClickDetector.Parent = guiSettingsButton
     end)
     
     local settingsContainer = Instance.new("Frame")
-    settingsContainer.Name = "SettingsContainer"
-    settingsContainer.Size = UDim2.new(0, 615, 0, 0)
-    settingsContainer.Position = UDim2.new(0, 257, 0, 90)
-    settingsContainer.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
-    settingsContainer.BackgroundTransparency = 1
-    settingsContainer.ZIndex = mainFrame.ZIndex + 1
-    settingsContainer.Parent = mainFrame
+settingsContainer.Size = UDim2.new(1, -6, 0, 60) -- Фиксированная высота для кнопки настроек
+settingsContainer.Position = UDim2.new(0, 3, 1, -65) -- Позиция внизу с отступом 5 пикселей
+settingsContainer.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
+settingsContainer.BorderSizePixel = 0
+settingsContainer.ZIndex = categoryFrame.ZIndex + 1
+settingsContainer.Parent = categoryFrame
 
-    local settingsCorner = Instance.new("UICorner")
-    settingsCorner.CornerRadius = UDim.new(0, 8)
-    settingsCorner.Parent = settingsContainer
+local settingsContainerCorner = Instance.new("UICorner")
+settingsContainerCorner.CornerRadius = UDim.new(0, 6)
+settingsContainerCorner.Parent = settingsContainer
+
+-- Добавляем кнопку настроек GUI в отдельный контейнер
+local guiSettingsButton = Instance.new("Frame")
+guiSettingsButton.Size = UDim2.new(0, 50, 0, 50)
+guiSettingsButton.Position = UDim2.new(0.5, -25, 0.5, -25) -- Центрируем в контейнере
+guiSettingsButton.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
+guiSettingsButton.BorderSizePixel = 0
+guiSettingsButton.ZIndex = settingsContainer.ZIndex + 1
+guiSettingsButton.Parent = settingsContainer
+
+local guiSettingsCorner = Instance.new("UICorner")
+guiSettingsCorner.CornerRadius = UDim.new(0, 8)
+guiSettingsCorner.Parent = guiSettingsButton
+
+local settingsIcon = Instance.new("ImageLabel")
+settingsIcon.Size = UDim2.new(0, 30, 0, 30)
+settingsIcon.Position = UDim2.new(0.5, -15, 0.5, -15)
+settingsIcon.BackgroundTransparency = 1
+settingsIcon.Image = "http://www.roblox.com/asset/?id=6031280882"
+settingsIcon.ImageColor3 = Color3.fromRGB(150, 150, 150)
+settingsIcon.ZIndex = guiSettingsButton.ZIndex + 1
+settingsIcon.Parent = guiSettingsButton
+
+local guiSettingsClickDetector = Instance.new("TextButton")
+guiSettingsClickDetector.Size = UDim2.new(1, 0, 1, 0)
+guiSettingsClickDetector.BackgroundTransparency = 1
+guiSettingsClickDetector.Text = ""
+guiSettingsClickDetector.ZIndex = guiSettingsButton.ZIndex + 2
+guiSettingsClickDetector.Parent = guiSettingsButton
 
     _G.mainFrame = mainFrame
     _G.isGUIVisible = false
