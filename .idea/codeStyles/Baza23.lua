@@ -1936,10 +1936,9 @@ function createMainUI()
     addCategory("http://www.roblox.com/asset/?id=124280107087786", "Utility")
     addCategory("http://www.roblox.com/asset/?id=124280107087786", "Util1ity")
 
- -- Добавляем кнопку настроек GUI
-    local guiSettingsButton = Instance.new("Frame")
+local guiSettingsButton = Instance.new("Frame")
 guiSettingsButton.Size = UDim2.new(0, 50, 0, 50)
-guiSettingsButton.Position = UDim2.new(0, 5, 0, 485) -- Статичная позиция: как 6-я категория (5 * 80 + 85) + 5 отступ
+guiSettingsButton.Position = UDim2.new(0, 5, 0, 490) -- Статичная позиция: как 6-я категория (5 * 80 + 85) + 5 отступ
 guiSettingsButton.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
 guiSettingsButton.BorderSizePixel = 0
 guiSettingsButton.ZIndex = categoryList.ZIndex + 1
