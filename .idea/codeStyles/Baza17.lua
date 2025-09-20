@@ -1934,7 +1934,6 @@ function createMainUI()
     addCategory("http://www.roblox.com/asset/?id=136613041915472", "World")
     addCategory("http://www.roblox.com/asset/?id=85568792810849", "Player")
     addCategory("http://www.roblox.com/asset/?id=124280107087786", "Utility")
-    addCategory("http://www.roblox.com/asset/?id=109730932565942", "Combat")
 
  -- Добавляем кнопку настроек GUI
     local guiSettingsButton = Instance.new("Frame")
