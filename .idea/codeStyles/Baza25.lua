@@ -1938,7 +1938,7 @@ function createMainUI()
 
 local guiSettingsButton = Instance.new("Frame")
 guiSettingsButton.Size = UDim2.new(0, 50, 0, 50)
-guiSettingsButton.Position = UDim2.new(0, 12, 0, 490) -- Статичная позиция: как 6-я категория (5 * 80 + 85) + 5 отступ
+guiSettingsButton.Position = UDim2.new(0, 12, 0, 500) -- Статичная позиция: как 6-я категория (5 * 80 + 85) + 5 отступ
 guiSettingsButton.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
 guiSettingsButton.BorderSizePixel = 0
 guiSettingsButton.ZIndex = categoryList.ZIndex + 1
