@@ -414,227 +414,499 @@ local function applyTheme(themeName)
     
     GUI_SETTINGS.theme = themeName
     
-    -- Main frame
-    _G.mainFrame.BackgroundColor3 = theme.mainBg
-    
-    -- Category frame и category buttons
-    for _, child in pairs(_G.mainFrame:GetChildren()) do
-        if child:IsA("Frame") and child.Size.X.Offset == 75 then -- Category frame
-            child.BackgroundColor3 = theme.categoryBg
-            
-            -- Category buttons
-            local categoryList = child:FindFirstChildOfClass("ScrollingFrame")
-            if categoryList then
-                for _, categoryButton in pairs(categoryList:GetChildren()) do
-                    if categoryButton:IsA("Frame") and categoryButton.Size == UDim2.new(0, 50, 0, 50) then
-                        categoryButton.BackgroundColor3 = theme.categoryBg
-                        
-                        -- Category icons
-                        local icon = categoryButton:FindFirstChild("ImageLabel")
-                        if icon then
-                            -- Проверяем активную категорию
-                            if categoryButton.BackgroundColor3 == Color3.fromRGB(22, 28, 30) then
-                                icon.ImageColor3 = theme.accentColor
-                                categoryButton.BackgroundColor3 = theme.hoverBg
-                            else
-                                icon.ImageColor3 = theme.textColorSecondary
-                            end
-                        end
-                    end
-                end
+    -- Функция для рекурсивного обновления всех элементов
+    local function updateElementTheme(element, isRoot)
+        if not element then return end
+        
+        -- Main frame
+        if element == _G.mainFrame then
+            element.BackgroundColor3 = theme.mainBg
+            return -- Не обрабатываем детей main frame рекурсивно
+        end
+        
+        -- Category frame (75px width)
+        if element:IsA("Frame") and element.Size.X.Offset == 75 and element.Parent == _G.mainFrame then
+            element.BackgroundColor3 = theme.categoryBg
+        end
+        
+        -- Module frame (150px width) 
+        if element:IsA("Frame") and element.Size.X.Offset == 150 and element.Parent == _G.mainFrame then
+            element.BackgroundColor3 = theme.moduleBg
+        end
+        
+        -- Settings container
+        if element.Name == "SettingsContainer" then
+            element.BackgroundColor3 = theme.settingsBg
+        end
+        
+        -- Category buttons (50x50)
+        if element:IsA("Frame") and element.Size == UDim2.new(0, 50, 0, 50) then
+            if element.BackgroundColor3 == Color3.fromRGB(22, 28, 30) then
+                -- Active category
+                element.BackgroundColor3 = theme.hoverBg
+            else
+                -- Inactive category
+                element.BackgroundColor3 = theme.categoryBg
             end
-        elseif child:IsA("Frame") and child.Size.X.Offset == 150 then -- Module frame
-            child.BackgroundColor3 = theme.moduleBg
-            
-            -- Module buttons
-            local moduleList = child:FindFirstChildOfClass("ScrollingFrame")
-            if moduleList then
-                for _, moduleButton in pairs(moduleList:GetChildren()) do
-                    if moduleButton:IsA("Frame") and moduleButton.Size == UDim2.new(1, -20, 0, 40) then
-                        moduleButton.BackgroundColor3 = theme.elementBg
-                        
-                        local textLabel = moduleButton:FindFirstChildOfClass("TextLabel")
-                        if textLabel then
-                            -- Проверяем активный модуль
-                            if textLabel.TextColor3 == Color3.fromRGB(255, 75, 75) then
-                                textLabel.TextColor3 = theme.accentColor
-                                moduleButton.BackgroundColor3 = theme.hoverBg
-                            else
-                                textLabel.TextColor3 = theme.textColorSecondary
-                            end
-                        end
-                    end
+        end
+        
+        -- Module buttons (1, -20, 0, 40)
+        if element:IsA("Frame") and element.Size == UDim2.new(1, -20, 0, 40) then
+            local textLabel = element:FindFirstChildOfClass("TextLabel")
+            if textLabel and textLabel.TextColor3 == Color3.fromRGB(255, 75, 75) then
+                -- Active module
+                element.BackgroundColor3 = theme.hoverBg
+                textLabel.TextColor3 = theme.accentColor
+            else
+                -- Inactive module
+                element.BackgroundColor3 = theme.elementBg
+                if textLabel then
+                    textLabel.TextColor3 = theme.textColorSecondary
                 end
             end
         end
-    end
-    
-    -- Settings container
-    local settingsContainer = _G.mainFrame:FindFirstChild("SettingsContainer")
-    if settingsContainer and settingsContainer.BackgroundTransparency < 1 then
-        settingsContainer.BackgroundColor3 = theme.settingsBg
         
-        -- Apply theme to all settings recursively
-        local function updateSettingsTheme(container)
-            for _, child in pairs(container:GetChildren()) do
-                if child:IsA("Frame") then
-                    updateSettingsTheme(child)
-                    
-                    -- Toggle switches
-                    if child.Size == UDim2.new(0, 40, 0, 20) then -- Switch track
-                        child.BackgroundColor3 = theme.toggleBg
-                    end
-                    
-                    -- Slider backgrounds
-                    if child.Size.Y.Offset == 6 then -- Slider track
+        -- Category icons
+        if element:IsA("ImageLabel") and element.Size == UDim2.new(0, 30, 0, 30) then
+            if element.ImageColor3 == Color3.fromRGB(255, 75, 75) then
+                element.ImageColor3 = theme.accentColor
+            else
+                element.ImageColor3 = theme.textColorSecondary
+            end
+        end
+        
+        -- Active lines (accent colored frames)
+        if element:IsA("Frame") and (element.Size == UDim2.new(0, 2, 0, 20) or element.Size == UDim2.new(0, 2, 1, -20)) then
+            element.BackgroundColor3 = theme.accentColor
+        end
+        
+        -- Toggle switches (40x20)
+        if element:IsA("Frame") and element.Size == UDim2.new(0, 40, 0, 20) then
+            element.BackgroundColor3 = theme.toggleBg
+            
+            -- Toggle circles (18x18)
+            for _, child in pairs(element:GetChildren()) do
+                if child:IsA("Frame") and child.Size == UDim2.new(0, 18, 0, 18) then
+                    if child.BackgroundColor3 == Color3.fromRGB(255, 75, 75) then
+                        child.BackgroundColor3 = theme.accentColor
+                    else
                         child.BackgroundColor3 = theme.textColorSecondary
-                        
-                        -- Slider active part
-                        local activePart = child:FindFirstChild("Frame")
-                        if activePart and activePart.BackgroundColor3 == Color3.fromRGB(255, 75, 75) then
-                            activePart.BackgroundColor3 = theme.accentColor
-                        end
-                    end
-                    
-                    -- Slider circles
-                    if child.Size == UDim2.new(0, 12, 0, 12) or child.Size == UDim2.new(0, 15, 0, 15) then
-                        if child.BackgroundColor3 == Color3.fromRGB(255, 75, 75) or child.BackgroundColor3 == Color3.fromRGB(255, 255, 255) then
-                            child.BackgroundColor3 = theme.accentColor
-                        end
-                    end
-                    
-                    -- Dropdown and text field backgrounds
-                    if child.Size == UDim2.new(0, 120, 0, 30) then
-                        if child.BackgroundColor3 == Color3.fromRGB(20, 20, 22) or child.BackgroundColor3 == Color3.fromRGB(40, 40, 40) then
-                            child.BackgroundColor3 = theme.elementBg
-                        end
-                    end
-                    
-                elseif child:IsA("TextLabel") then
-                    -- Setting labels
-                    if child.Font == Enum.Font.SourceSansBold and child.TextSize == 22 then
-                        child.TextColor3 = theme.textColorSecondary
-                    elseif child.TextColor3 == Color3.fromRGB(200, 200, 200) then
-                        child.TextColor3 = theme.textColor
-                    end
-                    
-                elseif child:IsA("TextButton") then
-                    -- Buttons
-                    if child.BackgroundColor3 == Color3.fromRGB(20, 20, 22) then
-                        child.BackgroundColor3 = theme.elementBg
-                    end
-                    if child.TextColor3 == Color3.fromRGB(200, 200, 200) then
-                        child.TextColor3 = theme.textColor
-                    end
-                    
-                elseif child:IsA("TextBox") then
-                    -- Text boxes
-                    if child.TextColor3 == Color3.fromRGB(200, 200, 200) then
-                        child.TextColor3 = theme.textColor
                     end
                 end
             end
         end
         
-        updateSettingsTheme(settingsContainer)
-    end
-    
-    -- Header labels
-    if activeCategoryLabel then
-        activeCategoryLabel.TextColor3 = theme.textColorSecondary
-    end
-    if slashLabel then
-        slashLabel.TextColor3 = theme.textColorSecondary
-    end
-    if moduleNameLabel then
-        moduleNameLabel.TextColor3 = theme.accentColor
-    end
-    
-    -- GUI Settings button
-    for _, child in pairs(_G.mainFrame:GetChildren()) do
-        if child:IsA("Frame") and child.Size.X.Offset == 75 then -- Category frame
-            local settingsButton = child:FindFirstChild("Frame")
-            if settingsButton and settingsButton.Position == UDim2.new(0, 12, 0, 530) then
-                settingsButton.BackgroundColor3 = theme.categoryBg
-                local settingsIcon = settingsButton:FindFirstChild("ImageLabel")
-                if settingsIcon then
-                    settingsIcon.ImageColor3 = theme.textColorSecondary
+        -- Slider tracks (height 6)
+        if element:IsA("Frame") and element.Size.Y.Offset == 6 then
+            element.BackgroundColor3 = theme.textColorSecondary
+            
+            -- Active slider part
+            for _, child in pairs(element:GetChildren()) do
+                if child:IsA("Frame") and child.BackgroundColor3 == Color3.fromRGB(255, 75, 75) then
+                    child.BackgroundColor3 = theme.accentColor
                 end
             end
         end
+        
+        -- Buttons and text fields (120x30)
+        if element:IsA("TextButton") and element.Size == UDim2.new(0, 120, 0, 30) then
+            element.BackgroundColor3 = theme.elementBg
+            element.TextColor3 = theme.textColor
+        end
+        
+        if element:IsA("Frame") and element.Size == UDim2.new(0, 120, 0, 30) then
+            element.BackgroundColor3 = theme.elementBg
+        end
+        
+        -- Keybind buttons (60x30)
+        if element:IsA("TextButton") and element.Size == UDim2.new(0, 60, 0, 30) then
+            element.BackgroundColor3 = theme.elementBg
+        end
+        
+        -- Text labels
+        if element:IsA("TextLabel") then
+            if element.Font == Enum.Font.SourceSansBold and element.TextSize == 22 then
+                element.TextColor3 = theme.textColorSecondary
+            elseif element.TextColor3 == Color3.fromRGB(200, 200, 200) then
+                element.TextColor3 = theme.textColor
+            elseif element.TextColor3 == Color3.fromRGB(255, 75, 75) then
+                element.TextColor3 = theme.accentColor
+            end
+        end
+        
+        -- Text boxes
+        if element:IsA("TextBox") then
+            element.TextColor3 = theme.textColor
+        end
+        
+        -- Header labels
+        if element == activeCategoryLabel then
+            element.TextColor3 = theme.textColorSecondary
+        elseif element == slashLabel then
+            element.TextColor3 = theme.textColorSecondary  
+        elseif element == moduleNameLabel then
+            element.TextColor3 = theme.accentColor
+        end
+        
+        -- Обрабатываем детей
+        for _, child in pairs(element:GetChildren()) do
+            updateElementTheme(child, false)
+        end
+    end
+    
+    -- Применяем тему ко всему GUI
+    updateElementTheme(_G.mainFrame, true)
+    
+    -- Обрабатываем детей main frame отдельно
+    for _, child in pairs(_G.mainFrame:GetChildren()) do
+        updateElementTheme(child, false)
     end
     
     saveGUISettings()
 end
 
+-- УНИВЕРСАЛЬНАЯ СИСТЕМА ТЕМ И БЛЮРА - ЗАМЕНИ ВСЕ ФУНКЦИИ НА ЭТИ:
+
+-- 1. НОВАЯ applyTheme функция которая меняет ВСЕ:
+local function applyTheme(themeName)
+    local theme = THEMES[themeName]
+    if not theme or not _G.mainFrame then return end
+    
+    GUI_SETTINGS.theme = themeName
+    
+    -- Функция для рекурсивного обновления всех элементов
+    local function updateElementTheme(element, isRoot)
+        if not element then return end
+        
+        -- Main frame
+        if element == _G.mainFrame then
+            element.BackgroundColor3 = theme.mainBg
+            return -- Не обрабатываем детей main frame рекурсивно
+        end
+        
+        -- Category frame (75px width)
+        if element:IsA("Frame") and element.Size.X.Offset == 75 and element.Parent == _G.mainFrame then
+            element.BackgroundColor3 = theme.categoryBg
+        end
+        
+        -- Module frame (150px width) 
+        if element:IsA("Frame") and element.Size.X.Offset == 150 and element.Parent == _G.mainFrame then
+            element.BackgroundColor3 = theme.moduleBg
+        end
+        
+        -- Settings container
+        if element.Name == "SettingsContainer" then
+            element.BackgroundColor3 = theme.settingsBg
+        end
+        
+        -- Category buttons (50x50)
+        if element:IsA("Frame") and element.Size == UDim2.new(0, 50, 0, 50) then
+            if element.BackgroundColor3 == Color3.fromRGB(22, 28, 30) then
+                -- Active category
+                element.BackgroundColor3 = theme.hoverBg
+            else
+                -- Inactive category
+                element.BackgroundColor3 = theme.categoryBg
+            end
+        end
+        
+        -- Module buttons (1, -20, 0, 40)
+        if element:IsA("Frame") and element.Size == UDim2.new(1, -20, 0, 40) then
+            local textLabel = element:FindFirstChildOfClass("TextLabel")
+            if textLabel and textLabel.TextColor3 == Color3.fromRGB(255, 75, 75) then
+                -- Active module
+                element.BackgroundColor3 = theme.hoverBg
+                textLabel.TextColor3 = theme.accentColor
+            else
+                -- Inactive module
+                element.BackgroundColor3 = theme.elementBg
+                if textLabel then
+                    textLabel.TextColor3 = theme.textColorSecondary
+                end
+            end
+        end
+        
+        -- Category icons
+        if element:IsA("ImageLabel") and element.Size == UDim2.new(0, 30, 0, 30) then
+            if element.ImageColor3 == Color3.fromRGB(255, 75, 75) then
+                element.ImageColor3 = theme.accentColor
+            else
+                element.ImageColor3 = theme.textColorSecondary
+            end
+        end
+        
+        -- Active lines (accent colored frames)
+        if element:IsA("Frame") and (element.Size == UDim2.new(0, 2, 0, 20) or element.Size == UDim2.new(0, 2, 1, -20)) then
+            element.BackgroundColor3 = theme.accentColor
+        end
+        
+        -- Toggle switches (40x20)
+        if element:IsA("Frame") and element.Size == UDim2.new(0, 40, 0, 20) then
+            element.BackgroundColor3 = theme.toggleBg
+            
+            -- Toggle circles (18x18)
+            for _, child in pairs(element:GetChildren()) do
+                if child:IsA("Frame") and child.Size == UDim2.new(0, 18, 0, 18) then
+                    if child.BackgroundColor3 == Color3.fromRGB(255, 75, 75) then
+                        child.BackgroundColor3 = theme.accentColor
+                    else
+                        child.BackgroundColor3 = theme.textColorSecondary
+                    end
+                end
+            end
+        end
+        
+        -- Slider tracks (height 6)
+        if element:IsA("Frame") and element.Size.Y.Offset == 6 then
+            element.BackgroundColor3 = theme.textColorSecondary
+            
+            -- Active slider part
+            for _, child in pairs(element:GetChildren()) do
+                if child:IsA("Frame") and child.BackgroundColor3 == Color3.fromRGB(255, 75, 75) then
+                    child.BackgroundColor3 = theme.accentColor
+                end
+            end
+        end
+        
+        -- Buttons and text fields (120x30)
+        if element:IsA("TextButton") and element.Size == UDim2.new(0, 120, 0, 30) then
+            element.BackgroundColor3 = theme.elementBg
+            element.TextColor3 = theme.textColor
+        end
+        
+        if element:IsA("Frame") and element.Size == UDim2.new(0, 120, 0, 30) then
+            element.BackgroundColor3 = theme.elementBg
+        end
+        
+        -- Keybind buttons (60x30)
+        if element:IsA("TextButton") and element.Size == UDim2.new(0, 60, 0, 30) then
+            element.BackgroundColor3 = theme.elementBg
+        end
+        
+        -- Text labels
+        if element:IsA("TextLabel") then
+            if element.Font == Enum.Font.SourceSansBold and element.TextSize == 22 then
+                element.TextColor3 = theme.textColorSecondary
+            elseif element.TextColor3 == Color3.fromRGB(200, 200, 200) then
+                element.TextColor3 = theme.textColor
+            elseif element.TextColor3 == Color3.fromRGB(255, 75, 75) then
+                element.TextColor3 = theme.accentColor
+            end
+        end
+        
+        -- Text boxes
+        if element:IsA("TextBox") then
+            element.TextColor3 = theme.textColor
+        end
+        
+        -- Header labels
+        if element == activeCategoryLabel then
+            element.TextColor3 = theme.textColorSecondary
+        elseif element == slashLabel then
+            element.TextColor3 = theme.textColorSecondary  
+        elseif element == moduleNameLabel then
+            element.TextColor3 = theme.accentColor
+        end
+        
+        -- Обрабатываем детей
+        for _, child in pairs(element:GetChildren()) do
+            updateElementTheme(child, false)
+        end
+    end
+    
+    -- Применяем тему ко всему GUI
+    updateElementTheme(_G.mainFrame, true)
+    
+    -- Обрабатываем детей main frame отдельно
+    for _, child in pairs(_G.mainFrame:GetChildren()) do
+        updateElementTheme(child, false)
+    end
+    
+    saveGUISettings()
+end
+
+-- 2. НОВАЯ applyBlurEffect функция для каждого фрейма:
 local function applyBlurEffect(intensity)
     GUI_SETTINGS.blurFactor = math.clamp(intensity, 0, 1)
     
-    if _G.mainFrame then
-        -- Remove existing blur effects
-        local existingBlur = _G.mainFrame:FindFirstChild("BlurFrame")
+    if not _G.mainFrame then return end
+    
+    -- Очищаем старые блюр эффекты
+    for _, child in pairs(_G.mainFrame:GetChildren()) do
+        local existingBlur = child:FindFirstChild("BlurEffect")
         if existingBlur then
             existingBlur:Destroy()
         end
+    end
+    
+    local existingLightingBlur = game.Lighting:FindFirstChild("UmbrellaBlur")
+    if existingLightingBlur then
+        existingLightingBlur:Destroy()
+    end
+    
+    if intensity > 0.01 then
+        -- Список фреймов для блюра (исключаем SettingsContainer)
+        local framesToBlur = {}
         
-        local existingLightingBlur = game.Lighting:FindFirstChild("UmbrellaBlur")
-        if existingLightingBlur then
-            existingLightingBlur:Destroy()
+        for _, child in pairs(_G.mainFrame:GetChildren()) do
+            if child:IsA("Frame") and child.Name ~= "SettingsContainer" then
+                -- Category frame (75px)
+                if child.Size.X.Offset == 75 then
+                    table.insert(framesToBlur, child)
+                end
+                -- Module frame (150px) 
+                if child.Size.X.Offset == 150 then
+                    table.insert(framesToBlur, child)
+                end
+            end
         end
         
-        if intensity > 0.05 then
-            -- Create backdrop blur frame behind GUI
+        -- Применяем блюр к каждому фрейму
+        for _, frame in pairs(framesToBlur) do
             local blurFrame = Instance.new("Frame")
-            blurFrame.Name = "BlurFrame"
-            blurFrame.Size = UDim2.new(1, 20, 1, 20)
-            blurFrame.Position = UDim2.new(0, -10, 0, -10)
+            blurFrame.Name = "BlurEffect"
+            blurFrame.Size = UDim2.new(1, 4, 1, 4)
+            blurFrame.Position = UDim2.new(0, -2, 0, -2)
             blurFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-            blurFrame.BackgroundTransparency = 0.3 + (intensity * 0.4)
+            blurFrame.BackgroundTransparency = 0.4 + (intensity * 0.3)
             blurFrame.BorderSizePixel = 0
-            blurFrame.ZIndex = _G.mainFrame.ZIndex - 1
-            blurFrame.Parent = _G.mainFrame
+            blurFrame.ZIndex = frame.ZIndex - 1
+            blurFrame.Parent = frame
             
             local blurCorner = Instance.new("UICorner")
-            blurCorner.CornerRadius = UDim.new(0, 12)
+            blurCorner.CornerRadius = UDim.new(0, 10)
             blurCorner.Parent = blurFrame
             
-            -- Glass effect overlay
+            -- Стеклянный эффект
             local glassEffect = Instance.new("Frame")
             glassEffect.Size = UDim2.new(1, 0, 1, 0)
             glassEffect.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            glassEffect.BackgroundTransparency = 0.92 - (intensity * 0.15)
+            glassEffect.BackgroundTransparency = 0.9 - (intensity * 0.1)
             glassEffect.BorderSizePixel = 0
             glassEffect.ZIndex = blurFrame.ZIndex + 1
             glassEffect.Parent = blurFrame
             
             local glassCorner = Instance.new("UICorner")
-            glassCorner.CornerRadius = UDim.new(0, 12)
+            glassCorner.CornerRadius = UDim.new(0, 10)
             glassCorner.Parent = glassEffect
             
-            -- Gradient overlay for extra effect
+            -- Градиент
             local gradient = Instance.new("UIGradient")
             gradient.Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(200, 200, 255)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 200, 255)),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 255, 200))
             })
             gradient.Transparency = NumberSequence.new({
-                NumberSequenceKeypoint.new(0, 0.95),
-                NumberSequenceKeypoint.new(0.5, 0.98),
-                NumberSequenceKeypoint.new(1, 0.95)
+                NumberSequenceKeypoint.new(0, 0.8),
+                NumberSequenceKeypoint.new(0.5, 0.95),
+                NumberSequenceKeypoint.new(1, 0.8)
             })
-            gradient.Rotation = 45
+            gradient.Rotation = math.random(30, 60)
             gradient.Parent = glassEffect
         end
         
-        -- Adjust main frame transparency
-        local baseTransparency = 0.02
-        local blurTransparency = intensity * 0.15
-        _G.mainFrame.BackgroundTransparency = baseTransparency + blurTransparency
+        -- Легкий блюр для main frame
+        _G.mainFrame.BackgroundTransparency = 0.05 + (intensity * 0.1)
+    else
+        _G.mainFrame.BackgroundTransparency = 0.05
     end
     
     saveGUISettings()
 end
+
+-- 3. ИСПРАВИ ВСЕ hover эффекты - добавь эти функции ПЕРЕД createMainUI:
+local function updateCategoryHover(categoryButton, iconImage, isActive, isHover)
+    local theme = THEMES[GUI_SETTINGS.theme]
+    
+    if isActive then
+        categoryButton.BackgroundColor3 = theme.hoverBg
+        iconImage.ImageColor3 = theme.accentColor
+    elseif isHover then
+        categoryButton.BackgroundColor3 = theme.hoverBg
+        iconImage.ImageColor3 = theme.textColor
+    else
+        categoryButton.BackgroundColor3 = theme.categoryBg
+        iconImage.ImageColor3 = theme.textColorSecondary
+    end
+end
+
+local function updateModuleHover(moduleButton, moduleName, isActive, isHover)
+    local theme = THEMES[GUI_SETTINGS.theme]
+    
+    if isActive then
+        moduleButton.BackgroundColor3 = theme.hoverBg
+        moduleName.TextColor3 = theme.accentColor
+    elseif isHover then
+        moduleButton.BackgroundColor3 = theme.hoverBg
+        moduleName.TextColor3 = theme.textColor
+    else
+        moduleButton.BackgroundColor3 = theme.elementBg
+        moduleName.TextColor3 = theme.textColorSecondary
+    end
+end
+
+local function updateKeybindHover(button, isHover)
+    local theme = THEMES[GUI_SETTINGS.theme]
+    
+    if isHover then
+        button.BackgroundColor3 = theme.hoverBg
+    else
+        button.BackgroundColor3 = theme.elementBg
+    end
+end
+
+-- 4. ЗАМЕНИ hover эффекты в addCategory функции на:
+clickDetector.MouseEnter:Connect(function()
+    updateCategoryHover(categoryButton, iconImage, activeCategory == categoryButton, true)
+end)
+
+clickDetector.MouseLeave:Connect(function()
+    updateCategoryHover(categoryButton, iconImage, activeCategory == categoryButton, false)
+end)
+
+-- 5. ЗАМЕНИ hover эффекты в createModuleButton функции на:
+clickDetector.MouseEnter:Connect(function()
+    updateModuleHover(moduleButton, moduleName, moduleSystem.activeModuleName == moduleData.name, true)
+end)
+
+clickDetector.MouseLeave:Connect(function()
+    updateModuleHover(moduleButton, moduleName, moduleSystem.activeModuleName == moduleData.name, false)
+end)
+
+-- 6. ЗАМЕНИ hover эффекты для keybind кнопок в createToggle на:
+keybindButton.MouseEnter:Connect(function()
+    updateKeybindHover(keybindButton, true)
+end)
+
+keybindButton.MouseLeave:Connect(function()
+    updateKeybindHover(keybindButton, false)
+end)
+
+-- 7. ОБНОВЛЕННАЯ refreshAllElements функция:
+local function refreshAllElements()
+    if _G.mainFrame and _G.mainFrame.Visible then
+        -- Сначала применяем тему
+        applyTheme(GUI_SETTINGS.theme)
+        -- Потом блюр 
+        task.wait(0.1)
+        applyBlurEffect(GUI_SETTINGS.blurFactor)
+    end
+end
+
+-- 8. ЗАМЕНИ вызов в createMainUI в самом конце на:
+task.spawn(function()
+    task.wait(0.5)
+    refreshAllElements()
+    
+    -- Дополнительное обновление каждые 2 секунды для подстраховки
+    while _G.mainFrame and _G.mainFrame.Parent do
+        task.wait(2)
+        if _G.isGUIVisible then
+            applyTheme(GUI_SETTINGS.theme)
+        end
+    end
+end)
 
 local function updateMenuBind(newKeyCode)
     GUI_SETTINGS.menuBind = newKeyCode
