@@ -753,15 +753,6 @@ task.spawn(function()
         end
     end
 end)
-    
-    -- Дополнительное обновление каждые 2 секунды для подстраховки
-    while _G.mainFrame and _G.mainFrame.Parent do
-        task.wait(2)
-        if _G.isGUIVisible then
-            applyTheme(GUI_SETTINGS.theme)
-        end
-    end
-end)
 
 local function updateMenuBind(newKeyCode)
     GUI_SETTINGS.menuBind = newKeyCode
