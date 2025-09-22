@@ -39,6 +39,61 @@ local ZINDEX = {
     TOGGLE_BUTTON = 1800      -- Кнопка переключения
 }
 
+local GUI_SETTINGS = {
+    menuBind = Enum.KeyCode.RightShift,
+    blurFactor = 1.0,
+    theme = "Dark"
+}
+
+-- Иконки для GUI Settings
+local ICONS = {
+    settings = "rbxassetid://6031280882",
+    close = "rbxassetid://6031094678"
+}
+
+-- Темы для GUI
+local THEMES = {
+    Dark = {
+        name = "Dark",
+        mainBg = Color3.fromRGB(8, 8, 8),
+        categoryBg = Color3.fromRGB(15, 15, 17),
+        moduleBg = Color3.fromRGB(15, 15, 17),
+        settingsBg = Color3.fromRGB(15, 15, 17),
+        accentColor = Color3.fromRGB(255, 75, 75),
+        textColor = Color3.fromRGB(200, 200, 200),
+        textColorSecondary = Color3.fromRGB(142, 142, 142),
+        elementBg = Color3.fromRGB(20, 20, 22),
+        hoverBg = Color3.fromRGB(30, 30, 32),
+        toggleBg = Color3.fromRGB(40, 40, 40)
+    },
+    Light = {
+        name = "Light",
+        mainBg = Color3.fromRGB(248, 249, 250),
+        categoryBg = Color3.fromRGB(255, 255, 255),
+        moduleBg = Color3.fromRGB(255, 255, 255),
+        settingsBg = Color3.fromRGB(255, 255, 255),
+        accentColor = Color3.fromRGB(66, 133, 244),
+        textColor = Color3.fromRGB(32, 33, 36),
+        textColorSecondary = Color3.fromRGB(95, 99, 104),
+        elementBg = Color3.fromRGB(241, 243, 244),
+        hoverBg = Color3.fromRGB(232, 234, 237),
+        toggleBg = Color3.fromRGB(218, 220, 224)
+    },
+    Classic = {
+        name = "Classic",
+        mainBg = Color3.fromRGB(45, 45, 48),
+        categoryBg = Color3.fromRGB(37, 37, 38),
+        moduleBg = Color3.fromRGB(37, 37, 38),
+        settingsBg = Color3.fromRGB(37, 37, 38),
+        accentColor = Color3.fromRGB(0, 122, 255),
+        textColor = Color3.fromRGB(255, 255, 255),
+        textColorSecondary = Color3.fromRGB(153, 153, 153),
+        elementBg = Color3.fromRGB(60, 60, 67),
+        hoverBg = Color3.fromRGB(72, 72, 74),
+        toggleBg = Color3.fromRGB(99, 99, 102)
+    }
+}
+
 local keybindSystem = {
     binds = {}, -- {KeyCode = moduleName}
     listeningForBind = nil,
@@ -247,7 +302,105 @@ local function loadSettings()
     end
 end
 
+local function getGUISettingsPath()
+    return "Umbrella/GUI_Settings.json"
+end
+
+local function saveGUISettings()
+    local success, err = pcall(function()
+        local dataToSave = {
+            menuBind = GUI_SETTINGS.menuBind.Name,
+            blurFactor = GUI_SETTINGS.blurFactor,
+            theme = GUI_SETTINGS.theme
+        }
+        
+        if not isfolder("Umbrella") then
+            makefolder("Umbrella")
+        end
+        
+        local filePath = getGUISettingsPath()
+        writefile(filePath, HttpService:JSONEncode(dataToSave))
+    end)
+    if not success then
+        warn("Failed to save GUI settings:", err)
+    end
+end
+
+local function loadGUISettings()
+    local success, result = pcall(function()
+        local filePath = getGUISettingsPath()
+        if isfile(filePath) then
+            return HttpService:JSONDecode(readfile(filePath))
+        end
+        return {}
+    end)
+    if success and result then
+        if result.menuBind then
+            GUI_SETTINGS.menuBind = Enum.KeyCode[result.menuBind] or Enum.KeyCode.RightShift
+        end
+        GUI_SETTINGS.blurFactor = result.blurFactor or 1.0
+        GUI_SETTINGS.theme = result.theme or "Dark"
+    end
+end
+
+local function applyTheme(themeName)
+    local theme = THEMES[themeName]
+    if not theme or not _G.mainFrame then return end
+    
+    GUI_SETTINGS.theme = themeName
+    
+    _G.mainFrame.BackgroundColor3 = theme.mainBg
+    
+    for _, frame in pairs(_G.mainFrame:GetChildren()) do
+        if frame:IsA("Frame") and frame.Name ~= "SettingsContainer" then
+            frame.BackgroundColor3 = theme.categoryBg
+        end
+    end
+    
+    local settingsContainer = _G.mainFrame:FindFirstChild("SettingsContainer")
+    if settingsContainer then
+        settingsContainer.BackgroundColor3 = theme.settingsBg
+    end
+    
+    saveGUISettings()
+end
+
+local function applyBlurEffect(intensity)
+    GUI_SETTINGS.blurFactor = intensity
+    
+    if _G.mainFrame then
+        local existingBlur = game.Lighting:FindFirstChild("UmbrellaBlur")
+        if existingBlur then
+            existingBlur:Destroy()
+        end
+        
+        if intensity > 0 then
+            local blur = Instance.new("BlurEffect")
+            blur.Name = "UmbrellaBlur"
+            blur.Size = intensity * 10
+            blur.Parent = game.Lighting
+            
+            local transparency = math.max(0.1, 1 - intensity)
+            _G.mainFrame.BackgroundTransparency = transparency * 0.3
+        else
+            _G.mainFrame.BackgroundTransparency = 0
+        end
+    end
+    
+    saveGUISettings()
+end
+
+local function updateMenuBind(newKeyCode)
+    GUI_SETTINGS.menuBind = newKeyCode
+    saveGUISettings()
+    
+    if showNotification then
+        showNotification("Menu bind updated to " .. getKeyName(newKeyCode), "success", 2)
+    end
+end
+
 loadSettings()
+loadGUISettings()
 
 -- УЛУЧШЕННАЯ СИСТЕМА НОТИФИКАЦИЙ
 local notificationsGui = Instance.new("ScreenGui")
@@ -1964,144 +2117,417 @@ guiSettingsClickDetector.Text = ""
 guiSettingsClickDetector.ZIndex = guiSettingsButton.ZIndex + 2
 guiSettingsClickDetector.Parent = guiSettingsButton
 
-    -- Переменная для отслеживания состояния окна настроек
-    local guiSettingsOpen = false
     local guiSettingsFrame = nil
+local guiSettingsOpen = false
 
-    local function createGuiSettingsWindow()
-        -- Удаляем существующее окно если есть
+local function createAdvancedGuiSettingsWindow()
+    if guiSettingsFrame then
+        guiSettingsFrame:Destroy()
+        guiSettingsFrame = nil
+    end
+
+    local theme = THEMES[GUI_SETTINGS.theme]
+
+    guiSettingsFrame = Instance.new("Frame")
+    guiSettingsFrame.Size = UDim2.new(0, 320, 0, 520)
+    guiSettingsFrame.Position = UDim2.new(0.5, -750, 0.5, -260)
+    guiSettingsFrame.BackgroundColor3 = theme.settingsBg
+    guiSettingsFrame.BorderSizePixel = 0
+    guiSettingsFrame.ZIndex = ZINDEX.MAIN_FRAME + 20
+    guiSettingsFrame.Parent = player.PlayerGui:FindFirstChild("MyUI")
+
+    local guiSettingsFrameCorner = Instance.new("UICorner")
+    guiSettingsFrameCorner.CornerRadius = UDim.new(0, 8)
+    guiSettingsFrameCorner.Parent = guiSettingsFrame
+
+    -- Заголовок с иконкой
+    local titleIcon = Instance.new("ImageLabel")
+    titleIcon.Size = UDim2.new(0, 24, 0, 24)
+    titleIcon.Position = UDim2.new(0, 15, 0, 13)
+    titleIcon.BackgroundTransparency = 1
+    titleIcon.Image = ICONS.settings
+    titleIcon.ImageColor3 = theme.textColor
+    titleIcon.ZIndex = guiSettingsFrame.ZIndex + 1
+    titleIcon.Parent = guiSettingsFrame
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, -90, 0, 50)
+    titleLabel.Position = UDim2.new(0, 50, 0, 0)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = "Settings"
+    titleLabel.TextColor3 = theme.textColor
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextSize = 18
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.TextYAlignment = Enum.TextYAlignment.Center
+    titleLabel.ZIndex = guiSettingsFrame.ZIndex + 1
+    titleLabel.Parent = guiSettingsFrame
+
+    -- Кнопка закрытия
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0, 24, 0, 24)
+    closeButton.Position = UDim2.new(1, -35, 0, 13)
+    closeButton.BackgroundTransparency = 1
+    closeButton.Text = ""
+    closeButton.ZIndex = guiSettingsFrame.ZIndex + 1
+    closeButton.Parent = guiSettingsFrame
+
+    local closeIcon = Instance.new("ImageLabel")
+    closeIcon.Size = UDim2.new(1, 0, 1, 0)
+    closeIcon.BackgroundTransparency = 1
+    closeIcon.Image = ICONS.close
+    closeIcon.ImageColor3 = theme.textColorSecondary
+    closeIcon.ZIndex = closeButton.ZIndex + 1
+    closeIcon.Parent = closeButton
+
+    closeButton.MouseEnter:Connect(function()
+        TweenService:Create(closeIcon, TweenInfo.new(0.2), {
+            ImageColor3 = theme.accentColor
+        }):Play()
+    end)
+
+    closeButton.MouseLeave:Connect(function()
+        TweenService:Create(closeIcon, TweenInfo.new(0.2), {
+            ImageColor3 = theme.textColorSecondary
+        }):Play()
+    end)
+
+    local function closeGuiSettings()
         if guiSettingsFrame then
             guiSettingsFrame:Destroy()
             guiSettingsFrame = nil
         end
-
-        -- Создаем окно настроек GUI в ScreenGui
-       guiSettingsFrame = Instance.new("Frame")
-        guiSettingsFrame.Size = UDim2.new(0, 280, 0, 480)
-        guiSettingsFrame.Position = UDim2.new(0.5, -750, 0.5, -240)
-        guiSettingsFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
-        guiSettingsFrame.BorderSizePixel = 0
-        guiSettingsFrame.ZIndex = ZINDEX.MAIN_FRAME + 20
-        guiSettingsFrame.Parent = screenGui
-
-        local guiSettingsFrameCorner = Instance.new("UICorner")
-        guiSettingsFrameCorner.CornerRadius = UDim.new(0, 8)
-        guiSettingsFrameCorner.Parent = guiSettingsFrame
-
-        -- Система перетаскивания для окна настроек
-        local settingsDragging = false
-        local settingsDragStart
-        local settingsStartPos
-
-        local settingsTopBar = Instance.new("Frame")
-        settingsTopBar.Size = UDim2.new(1, 0, 0, 50)
-        settingsTopBar.Position = UDim2.new(0, 0, 0, 0)
-        settingsTopBar.BackgroundTransparency = 1
-        settingsTopBar.ZIndex = guiSettingsFrame.ZIndex + 1
-        settingsTopBar.Parent = guiSettingsFrame
-
-        local function updateSettingsDrag(input)
-            local delta = input.Position - settingsDragStart
-            local position = UDim2.new(
-                settingsStartPos.X.Scale,
-                math.floor(settingsStartPos.X.Offset + delta.X),
-                settingsStartPos.Y.Scale,
-                math.floor(settingsStartPos.Y.Offset + delta.Y)
-            )
-            guiSettingsFrame.Position = position
-        end
-
-        settingsTopBar.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                settingsDragging = true
-                settingsDragStart = input.Position
-                settingsStartPos = guiSettingsFrame.Position
-
-                local connection
-                connection = UIS.InputEnded:Connect(function(inputEnd)
-                    if inputEnd.UserInputType == Enum.UserInputType.MouseButton1 then
-                        settingsDragging = false
-                        connection:Disconnect()
-                    end
-                end)
-            end
-        end)
-
-        UIS.InputChanged:Connect(function(input)
-            if settingsDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-                updateSettingsDrag(input)
-            end
-        end)
-
-        -- Заголовок
-        local titleLabel = Instance.new("TextLabel")
-        titleLabel.Size = UDim2.new(1, -50, 0, 50)
-        titleLabel.Position = UDim2.new(0, 20, 0, 0)
-        titleLabel.BackgroundTransparency = 1
-        titleLabel.Text = "GUI Settings"
-        titleLabel.TextColor3 = Color3.fromRGB(255, 75, 75)
-        titleLabel.Font = Enum.Font.GothamBold
-        titleLabel.TextSize = 20
-        titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-        titleLabel.TextYAlignment = Enum.TextYAlignment.Center
-        titleLabel.ZIndex = guiSettingsFrame.ZIndex + 1
-        titleLabel.Parent = guiSettingsFrame
-
-        -- Кнопка закрытия (крестик)
-        local closeButton = Instance.new("TextButton")
-        closeButton.Size = UDim2.new(0, 30, 0, 30)
-        closeButton.Position = UDim2.new(1, -40, 0, 10)
-        closeButton.BackgroundColor3 = Color3.fromRGB(25, 25, 27)
-        closeButton.BorderSizePixel = 0
-        closeButton.Text = "✕"
-        closeButton.TextColor3 = Color3.fromRGB(200, 200, 200)
-        closeButton.Font = Enum.Font.GothamBold
-        closeButton.TextSize = 14
-        closeButton.ZIndex = guiSettingsFrame.ZIndex + 1
-        closeButton.Parent = guiSettingsFrame
-
-        local closeButtonCorner = Instance.new("UICorner")
-        closeButtonCorner.CornerRadius = UDim.new(0, 4)
-        closeButtonCorner.Parent = closeButton
-
-        -- Hover эффект для кнопки закрытия
-        closeButton.MouseEnter:Connect(function()
-            TweenService:Create(closeButton, TweenInfo.new(0.2), {
-                BackgroundColor3 = Color3.fromRGB(255, 75, 75)
-            }):Play()
-        end)
-
-        closeButton.MouseLeave:Connect(function()
-            TweenService:Create(closeButton, TweenInfo.new(0.2), {
-                BackgroundColor3 = Color3.fromRGB(25, 25, 27)
-            }):Play()
-        end)
-
-        closeButton.MouseButton1Click:Connect(function()
-            closeGuiSettings()
-        end)
-
-        -- Контент настроек
-        local contentFrame = Instance.new("Frame")
-        contentFrame.Size = UDim2.new(1, -20, 1, -70)
-        contentFrame.Position = UDim2.new(0, 10, 0, 60)
-        contentFrame.BackgroundTransparency = 1
-        contentFrame.ZIndex = guiSettingsFrame.ZIndex + 1
-        contentFrame.Parent = guiSettingsFrame
-
-        local exampleLabel = Instance.new("TextLabel")
-        exampleLabel.Size = UDim2.new(1, 0, 0, 30)
-        exampleLabel.Position = UDim2.new(0, 10, 0, 10)
-        exampleLabel.BackgroundTransparency = 1
-        exampleLabel.Text = "GUI Settings will be implemented here"
-        exampleLabel.TextColor3 = Color3.fromRGB(150, 153, 163)
-        exampleLabel.Font = Enum.Font.Gotham
-        exampleLabel.TextSize = 16
-        exampleLabel.TextXAlignment = Enum.TextXAlignment.Left
-        exampleLabel.ZIndex = contentFrame.ZIndex + 1
-        exampleLabel.Parent = contentFrame
+        guiSettingsOpen = false
     end
 
+    closeButton.MouseButton1Click:Connect(function()
+        closeGuiSettings()
+    end)
+
+    -- Контейнер с прокруткой
+    local scrollFrame = Instance.new("ScrollingFrame")
+    scrollFrame.Size = UDim2.new(1, -10, 1, -70)
+    scrollFrame.Position = UDim2.new(0, 5, 0, 60)
+    scrollFrame.BackgroundTransparency = 1
+    scrollFrame.ScrollBarThickness = 4
+    scrollFrame.ScrollBarImageColor3 = theme.accentColor
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+    scrollFrame.ZIndex = guiSettingsFrame.ZIndex + 1
+    scrollFrame.Parent = guiSettingsFrame
+
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Size = UDim2.new(1, -10, 1, 0)
+    contentFrame.BackgroundTransparency = 1
+    contentFrame.ZIndex = scrollFrame.ZIndex + 1
+    contentFrame.Parent = scrollFrame
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 15)
+    layout.Parent = contentFrame
+
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 20)
+    end)
+
+    local function createCategoryHeader(text)
+        local header = Instance.new("TextLabel")
+        header.Size = UDim2.new(1, 0, 0, 30)
+        header.BackgroundTransparency = 1
+        header.Text = text
+        header.TextColor3 = theme.textColor
+        header.Font = Enum.Font.GothamBold
+        header.TextSize = 16
+        header.TextXAlignment = Enum.TextXAlignment.Left
+        header.ZIndex = contentFrame.ZIndex + 1
+        header.Parent = contentFrame
+        return header
+    end
+
+    local function createSettingContainer()
+        local container = Instance.new("Frame")
+        container.Size = UDim2.new(1, 0, 0, 50)
+        container.BackgroundTransparency = 1
+        container.ZIndex = contentFrame.ZIndex + 1
+        container.Parent = contentFrame
+        return container
+    end
+
+    -- MAIN CATEGORY
+    createCategoryHeader("Main")
+
+    -- Menu Bind
+    local menuBindContainer = createSettingContainer()
+    
+    local menuBindLabel = Instance.new("TextLabel")
+    menuBindLabel.Size = UDim2.new(0, 150, 1, 0)
+    menuBindLabel.Position = UDim2.new(0, 15, 0, 0)
+    menuBindLabel.BackgroundTransparency = 1
+    menuBindLabel.Text = "Menu Bind"
+    menuBindLabel.TextColor3 = theme.textColorSecondary
+    menuBindLabel.Font = Enum.Font.Gotham
+    menuBindLabel.TextSize = 14
+    menuBindLabel.TextXAlignment = Enum.TextXAlignment.Left
+    menuBindLabel.TextYAlignment = Enum.TextYAlignment.Center
+    menuBindLabel.ZIndex = menuBindContainer.ZIndex + 1
+    menuBindLabel.Parent = menuBindContainer
+
+    local menuBindButton = Instance.new("TextButton")
+    menuBindButton.Size = UDim2.new(0, 80, 0, 30)
+    menuBindButton.Position = UDim2.new(1, -95, 0.5, -15)
+    menuBindButton.BackgroundColor3 = theme.elementBg
+    menuBindButton.BorderSizePixel = 0
+    menuBindButton.Text = getKeyName(GUI_SETTINGS.menuBind)
+    menuBindButton.TextColor3 = theme.textColor
+    menuBindButton.Font = Enum.Font.GothamMedium
+    menuBindButton.TextSize = 12
+    menuBindButton.AutoButtonColor = false
+    menuBindButton.ZIndex = menuBindContainer.ZIndex + 1
+    menuBindButton.Parent = menuBindContainer
+
+    local menuBindCorner = Instance.new("UICorner")
+    menuBindCorner.CornerRadius = UDim.new(0, 4)
+    menuBindCorner.Parent = menuBindButton
+
+    menuBindButton.MouseEnter:Connect(function()
+        TweenService:Create(menuBindButton, TweenInfo.new(0.2), {
+            BackgroundColor3 = theme.hoverBg
+        }):Play()
+    end)
+
+    menuBindButton.MouseLeave:Connect(function()
+        TweenService:Create(menuBindButton, TweenInfo.new(0.2), {
+            BackgroundColor3 = theme.elementBg
+        }):Play()
+    end)
+
+    local isListening = false
+    menuBindButton.MouseButton1Click:Connect(function()
+        if isListening then return end
+        
+        isListening = true
+        menuBindButton.Text = "..."
+        menuBindButton.TextColor3 = theme.accentColor
+        
+        local connection
+        connection = UIS.InputBegan:Connect(function(input, gameProcessed)
+            if gameProcessed then return end
+            
+            if input.UserInputType == Enum.UserInputType.Keyboard then
+                local keyCode = input.KeyCode
+                if keyCode ~= Enum.KeyCode.Escape then
+                    updateMenuBind(keyCode)
+                    menuBindButton.Text = getKeyName(keyCode)
+                    menuBindButton.TextColor3 = theme.textColor
+                else
+                    menuBindButton.Text = getKeyName(GUI_SETTINGS.menuBind)
+                    menuBindButton.TextColor3 = theme.textColor
+                end
+                
+                isListening = false
+                connection:Disconnect()
+            end
+        end)
+    end)
+
+    -- Menu Blur Factor
+    local blurContainer = createSettingContainer()
+    blurContainer.Size = UDim2.new(1, 0, 0, 60)
+
+    local blurLabel = Instance.new("TextLabel")
+    blurLabel.Size = UDim2.new(0, 150, 0, 30)
+    blurLabel.Position = UDim2.new(0, 15, 0, 0)
+    blurLabel.BackgroundTransparency = 1
+    blurLabel.Text = "Menu Blur Factor"
+    blurLabel.TextColor3 = theme.textColorSecondary
+    blurLabel.Font = Enum.Font.Gotham
+    blurLabel.TextSize = 14
+    blurLabel.TextXAlignment = Enum.TextXAlignment.Left
+    blurLabel.ZIndex = blurContainer.ZIndex + 1
+    blurLabel.Parent = blurContainer
+
+    local blurValue = Instance.new("TextLabel")
+    blurValue.Size = UDim2.new(0, 50, 0, 30)
+    blurValue.Position = UDim2.new(1, -65, 0, 0)
+    blurValue.BackgroundTransparency = 1
+    blurValue.Text = string.format("%.2f", GUI_SETTINGS.blurFactor)
+    blurValue.TextColor3 = theme.textColor
+    blurValue.Font = Enum.Font.GothamMedium
+    blurValue.TextSize = 12
+    blurValue.TextXAlignment = Enum.TextXAlignment.Right
+    blurValue.ZIndex = blurContainer.ZIndex + 1
+    blurValue.Parent = blurContainer
+
+    local sliderTrack = Instance.new("Frame")
+    sliderTrack.Size = UDim2.new(1, -30, 0, 4)
+    sliderTrack.Position = UDim2.new(0, 15, 0, 40)
+    sliderTrack.BackgroundColor3 = theme.elementBg
+    sliderTrack.BorderSizePixel = 0
+    sliderTrack.ZIndex = blurContainer.ZIndex + 1
+    sliderTrack.Parent = blurContainer
+
+    local trackCorner = Instance.new("UICorner")
+    trackCorner.CornerRadius = UDim.new(1, 0)
+    trackCorner.Parent = sliderTrack
+
+    local sliderFill = Instance.new("Frame")
+    sliderFill.Size = UDim2.new(GUI_SETTINGS.blurFactor / 2, 0, 1, 0)
+    sliderFill.BackgroundColor3 = theme.accentColor
+    sliderFill.BorderSizePixel = 0
+    sliderFill.ZIndex = sliderTrack.ZIndex + 1
+    sliderFill.Parent = sliderTrack
+
+    local fillCorner = Instance.new("UICorner")
+    fillCorner.CornerRadius = UDim.new(1, 0)
+    fillCorner.Parent = sliderFill
+
+    local sliderHandle = Instance.new("Frame")
+    sliderHandle.Size = UDim2.new(0, 16, 0, 16)
+    sliderHandle.Position = UDim2.new(GUI_SETTINGS.blurFactor / 2, -8, 0.5, -8)
+    sliderHandle.BackgroundColor3 = theme.accentColor
+    sliderHandle.BorderSizePixel = 0
+    sliderHandle.ZIndex = sliderTrack.ZIndex + 2
+    sliderHandle.Parent = sliderTrack
+
+    local handleCorner = Instance.new("UICorner")
+    handleCorner.CornerRadius = UDim.new(1, 0)
+    handleCorner.Parent = sliderHandle
+
+    local dragging = false
+    sliderHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+        end
+    end)
+
+    sliderHandle.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local mousePos = input.Position.X
+            local trackStart = sliderTrack.AbsolutePosition.X
+            local trackEnd = trackStart + sliderTrack.AbsoluteSize.X
+            local newX = math.clamp(mousePos, trackStart, trackEnd)
+            
+            local relativePos = (newX - trackStart) / sliderTrack.AbsoluteSize.X
+            local newValue = relativePos * 2
+            
+            GUI_SETTINGS.blurFactor = newValue
+            blurValue.Text = string.format("%.2f", newValue)
+            
+            sliderHandle.Position = UDim2.new(relativePos, -8, 0.5, -8)
+            sliderFill.Size = UDim2.new(relativePos, 0, 1, 0)
+            
+            applyBlurEffect(newValue)
+        end
+    end)
+
+    -- Theme Selection
+    local themeContainer = createSettingContainer()
+    themeContainer.Size = UDim2.new(1, 0, 0, 80)
+
+    local themeLabel = Instance.new("TextLabel")
+    themeLabel.Size = UDim2.new(1, -30, 0, 30)
+    themeLabel.Position = UDim2.new(0, 15, 0, 0)
+    themeLabel.BackgroundTransparency = 1
+    themeLabel.Text = "Theme"
+    themeLabel.TextColor3 = theme.textColorSecondary
+    themeLabel.Font = Enum.Font.Gotham
+    themeLabel.TextSize = 14
+    themeLabel.TextXAlignment = Enum.TextXAlignment.Left
+    themeLabel.ZIndex = themeContainer.ZIndex + 1
+    themeLabel.Parent = themeContainer
+
+    local themeButtons = Instance.new("Frame")
+    themeButtons.Size = UDim2.new(1, -30, 0, 40)
+    themeButtons.Position = UDim2.new(0, 15, 0, 35)
+    themeButtons.BackgroundTransparency = 1
+    themeButtons.ZIndex = themeContainer.ZIndex + 1
+    themeButtons.Parent = themeContainer
+
+    local buttonLayout = Instance.new("UIListLayout")
+    buttonLayout.FillDirection = Enum.FillDirection.Horizontal
+    buttonLayout.Padding = UDim.new(0, 8)
+    buttonLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    buttonLayout.Parent = themeButtons
+
+    local themeNames = {"Dark", "Light", "Classic"}
+    local themeColors = {
+        Dark = Color3.fromRGB(45, 45, 48),
+        Light = Color3.fromRGB(248, 249, 250),
+        Classic = Color3.fromRGB(0, 122, 255)
+    }
+
+    for _, themeName in ipairs(themeNames) do
+        local themeButton = Instance.new("TextButton")
+        themeButton.Size = UDim2.new(0, 80, 0, 32)
+        themeButton.BackgroundColor3 = themeColors[themeName]
+        themeButton.BorderSizePixel = 0
+        themeButton.Text = ""
+        themeButton.AutoButtonColor = false
+        themeButton.ZIndex = themeButtons.ZIndex + 1
+        themeButton.Parent = themeButtons
+
+        local buttonCorner = Instance.new("UICorner")
+        buttonCorner.CornerRadius = UDim.new(0, 6)
+        buttonCorner.Parent = themeButton
+
+        local nameLabel = Instance.new("TextLabel")
+        nameLabel.Size = UDim2.new(1, 0, 1, -20)
+        nameLabel.Position = UDim2.new(0, 0, 0, 20)
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.Text = themeName
+        nameLabel.TextColor3 = themeName == "Light" and Color3.fromRGB(0, 0, 0) or Color3.fromRGB(255, 255, 255)
+        nameLabel.Font = Enum.Font.GothamMedium
+        nameLabel.TextSize = 11
+        nameLabel.ZIndex = themeButton.ZIndex + 1
+        nameLabel.Parent = themeButton
+
+        local indicator = Instance.new("Frame")
+        indicator.Size = UDim2.new(0, 12, 0, 3)
+        indicator.Position = UDim2.new(0.5, -6, 0, 6)
+        indicator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        indicator.BorderSizePixel = 0
+        indicator.Visible = GUI_SETTINGS.theme == themeName
+        indicator.ZIndex = themeButton.ZIndex + 1
+        indicator.Parent = themeButton
+
+        local indicatorCorner = Instance.new("UICorner")
+        indicatorCorner.CornerRadius = UDim.new(1, 0)
+        indicatorCorner.Parent = indicator
+
+        themeButton.MouseButton1Click:Connect(function()
+            for _, button in pairs(themeButtons:GetChildren()) do
+                if button:IsA("TextButton") then
+                    local ind = button:FindFirstChild("Frame")
+                    if ind then ind.Visible = false end
+                end
+            end
+            
+            indicator.Visible = true
+            applyTheme(themeName)
+            
+            task.wait(0.1)
+            createAdvancedGuiSettingsWindow()
+        end)
+
+        themeButton.MouseEnter:Connect(function()
+            TweenService:Create(themeButton, TweenInfo.new(0.2), {
+                Size = UDim2.new(0, 84, 0, 36)
+            }):Play()
+        end)
+
+        themeButton.MouseLeave:Connect(function()
+            TweenService:Create(themeButton, TweenInfo.new(0.2), {
+                Size = UDim2.new(0, 80, 0, 32)
+            }):Play()
+        end)
+    end
+end
+    
     local function closeGuiSettings()
         if guiSettingsFrame then
             guiSettingsFrame:Destroy()
@@ -2181,14 +2607,36 @@ guiSettingsClickDetector.Parent = guiSettingsButton
     
     createToggleButton()
 
-    -- ИСПРАВЛЕНО: Горячая клавиша изменена на левый Ctrl
-    UIS.InputBegan:Connect(function(input, gameProcessed)
-        if gameProcessed then return end
-        
-        if input.KeyCode == Enum.KeyCode.RightShift then
-            toggleGUI()
+UIS.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    -- Проверяем настраиваемый бинд меню
+    if input.KeyCode == GUI_SETTINGS.menuBind then
+        if _G.mainFrame then
+            _G.isGUIVisible = not _G.isGUIVisible
+            _G.mainFrame.Visible = _G.isGUIVisible
+            
+            if _G.isGUIVisible then
+                showNotification("Press " .. getKeyName(GUI_SETTINGS.menuBind) .. " to close GUI", "info", 2)
+            else
+                showNotification("Press " .. getKeyName(GUI_SETTINGS.menuBind) .. " to open GUI", "success", 2)
+            end
         end
-    end)
+        return
+    end
+    
+    -- ОСТАЛЬНОЙ КОД ОСТАЕТСЯ БЕЗ ИЗМЕНЕНИЙ (для биндов модулей)
+    if keybindSystem.listeningForBind and input.UserInputType == Enum.UserInputType.Keyboard then
+        -- ваш существующий код
+    end
+    
+    if input.UserInputType == Enum.UserInputType.Keyboard then
+        local moduleName = keybindSystem.binds[input.KeyCode]
+        if moduleName then
+            -- ваш существующий код
+        end
+    end
+end)
     
     API:loadSettings()
     task.wait(0.1) -- небольшая задержка для завершения всех процессов
@@ -2202,6 +2650,22 @@ end
 -- ДОБАВЛЕНО: Функция для показа нотификаций из внешнего кода
 function API:showNotification(text, type, duration)
     showNotification(text, type or "info", duration or 3)
+end
+
+function API:getGUISettings()
+    return GUI_SETTINGS
+end
+
+function API:updateTheme(themeName)
+    applyTheme(themeName)
+end
+
+function API:updateBlurFactor(factor)
+    applyBlurEffect(factor)
+end
+
+function API:updateMenuBind(keyCode)
+    updateMenuBind(keyCode)
 end
 
 local function init(config)
