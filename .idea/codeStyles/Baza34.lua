@@ -408,166 +408,9 @@ local function loadGUISettings()
     end
 end
 
-local function applyTheme(themeName)
-    local theme = THEMES[themeName]
-    if not theme or not _G.mainFrame then return end
-    
-    GUI_SETTINGS.theme = themeName
-    
-    -- Функция для рекурсивного обновления всех элементов
-    local function updateElementTheme(element, isRoot)
-        if not element then return end
-        
-        -- Main frame
-        if element == _G.mainFrame then
-            element.BackgroundColor3 = theme.mainBg
-            return -- Не обрабатываем детей main frame рекурсивно
-        end
-        
-        -- Category frame (75px width)
-        if element:IsA("Frame") and element.Size.X.Offset == 75 and element.Parent == _G.mainFrame then
-            element.BackgroundColor3 = theme.categoryBg
-        end
-        
-        -- Module frame (150px width) 
-        if element:IsA("Frame") and element.Size.X.Offset == 150 and element.Parent == _G.mainFrame then
-            element.BackgroundColor3 = theme.moduleBg
-        end
-        
-        -- Settings container
-        if element.Name == "SettingsContainer" then
-            element.BackgroundColor3 = theme.settingsBg
-        end
-        
-        -- Category buttons (50x50)
-        if element:IsA("Frame") and element.Size == UDim2.new(0, 50, 0, 50) then
-            if element.BackgroundColor3 == Color3.fromRGB(22, 28, 30) then
-                -- Active category
-                element.BackgroundColor3 = theme.hoverBg
-            else
-                -- Inactive category
-                element.BackgroundColor3 = theme.categoryBg
-            end
-        end
-        
-        -- Module buttons (1, -20, 0, 40)
-        if element:IsA("Frame") and element.Size == UDim2.new(1, -20, 0, 40) then
-            local textLabel = element:FindFirstChildOfClass("TextLabel")
-            if textLabel and textLabel.TextColor3 == Color3.fromRGB(255, 75, 75) then
-                -- Active module
-                element.BackgroundColor3 = theme.hoverBg
-                textLabel.TextColor3 = theme.accentColor
-            else
-                -- Inactive module
-                element.BackgroundColor3 = theme.elementBg
-                if textLabel then
-                    textLabel.TextColor3 = theme.textColorSecondary
-                end
-            end
-        end
-        
-        -- Category icons
-        if element:IsA("ImageLabel") and element.Size == UDim2.new(0, 30, 0, 30) then
-            if element.ImageColor3 == Color3.fromRGB(255, 75, 75) then
-                element.ImageColor3 = theme.accentColor
-            else
-                element.ImageColor3 = theme.textColorSecondary
-            end
-        end
-        
-        -- Active lines (accent colored frames)
-        if element:IsA("Frame") and (element.Size == UDim2.new(0, 2, 0, 20) or element.Size == UDim2.new(0, 2, 1, -20)) then
-            element.BackgroundColor3 = theme.accentColor
-        end
-        
-        -- Toggle switches (40x20)
-        if element:IsA("Frame") and element.Size == UDim2.new(0, 40, 0, 20) then
-            element.BackgroundColor3 = theme.toggleBg
-            
-            -- Toggle circles (18x18)
-            for _, child in pairs(element:GetChildren()) do
-                if child:IsA("Frame") and child.Size == UDim2.new(0, 18, 0, 18) then
-                    if child.BackgroundColor3 == Color3.fromRGB(255, 75, 75) then
-                        child.BackgroundColor3 = theme.accentColor
-                    else
-                        child.BackgroundColor3 = theme.textColorSecondary
-                    end
-                end
-            end
-        end
-        
-        -- Slider tracks (height 6)
-        if element:IsA("Frame") and element.Size.Y.Offset == 6 then
-            element.BackgroundColor3 = theme.textColorSecondary
-            
-            -- Active slider part
-            for _, child in pairs(element:GetChildren()) do
-                if child:IsA("Frame") and child.BackgroundColor3 == Color3.fromRGB(255, 75, 75) then
-                    child.BackgroundColor3 = theme.accentColor
-                end
-            end
-        end
-        
-        -- Buttons and text fields (120x30)
-        if element:IsA("TextButton") and element.Size == UDim2.new(0, 120, 0, 30) then
-            element.BackgroundColor3 = theme.elementBg
-            element.TextColor3 = theme.textColor
-        end
-        
-        if element:IsA("Frame") and element.Size == UDim2.new(0, 120, 0, 30) then
-            element.BackgroundColor3 = theme.elementBg
-        end
-        
-        -- Keybind buttons (60x30)
-        if element:IsA("TextButton") and element.Size == UDim2.new(0, 60, 0, 30) then
-            element.BackgroundColor3 = theme.elementBg
-        end
-        
-        -- Text labels
-        if element:IsA("TextLabel") then
-            if element.Font == Enum.Font.SourceSansBold and element.TextSize == 22 then
-                element.TextColor3 = theme.textColorSecondary
-            elseif element.TextColor3 == Color3.fromRGB(200, 200, 200) then
-                element.TextColor3 = theme.textColor
-            elseif element.TextColor3 == Color3.fromRGB(255, 75, 75) then
-                element.TextColor3 = theme.accentColor
-            end
-        end
-        
-        -- Text boxes
-        if element:IsA("TextBox") then
-            element.TextColor3 = theme.textColor
-        end
-        
-        -- Header labels
-        if element == activeCategoryLabel then
-            element.TextColor3 = theme.textColorSecondary
-        elseif element == slashLabel then
-            element.TextColor3 = theme.textColorSecondary  
-        elseif element == moduleNameLabel then
-            element.TextColor3 = theme.accentColor
-        end
-        
-        -- Обрабатываем детей
-        for _, child in pairs(element:GetChildren()) do
-            updateElementTheme(child, false)
-        end
-    end
-    
-    -- Применяем тему ко всему GUI
-    updateElementTheme(_G.mainFrame, true)
-    
-    -- Обрабатываем детей main frame отдельно
-    for _, child in pairs(_G.mainFrame:GetChildren()) do
-        updateElementTheme(child, false)
-    end
-    
-    saveGUISettings()
-end
 
 -- УНИВЕРСАЛЬНАЯ СИСТЕМА ТЕМ И БЛЮРА - ЗАМЕНИ ВСЕ ФУНКЦИИ НА ЭТИ:
 
--- 1. НОВАЯ applyTheme функция которая меняет ВСЕ:
 local function applyTheme(themeName)
     local theme = THEMES[themeName]
     if not theme or not _G.mainFrame then return end
@@ -894,10 +737,22 @@ local function refreshAllElements()
     end
 end
 
--- 8. ЗАМЕНИ вызов в createMainUI в самом конце на:
 task.spawn(function()
     task.wait(0.5)
-    refreshAllElements()
+    if _G.mainFrame and _G.mainFrame.Visible then
+        applyTheme(GUI_SETTINGS.theme)
+        task.wait(0.1)
+        applyBlurEffect(GUI_SETTINGS.blurFactor)
+    end
+    
+    -- Автообновление каждые 2 секунды
+    while _G.mainFrame and _G.mainFrame.Parent do
+        task.wait(2)
+        if _G.isGUIVisible then
+            applyTheme(GUI_SETTINGS.theme)
+        end
+    end
+end)
     
     -- Дополнительное обновление каждые 2 секунды для подстраховки
     while _G.mainFrame and _G.mainFrame.Parent do
