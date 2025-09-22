@@ -2566,7 +2566,7 @@ end
         if not guiSettingsOpen then
             -- Открываем настройки
             guiSettingsOpen = true
-            createGuiSettingsWindow()
+            createAdvancedGuiSettingsWindow()
             
             -- Подсвечиваем кнопку
             TweenService:Create(guiSettingsButton, TweenInfo.new(0.2), {
