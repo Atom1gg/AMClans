@@ -414,29 +414,54 @@ local function applyTheme(themeName)
     
     GUI_SETTINGS.theme = themeName
     
-    -- Apply to main frame
+    -- Main frame
     _G.mainFrame.BackgroundColor3 = theme.mainBg
     
-    -- Apply to category frame
-    local categoryFrame = _G.mainFrame:FindFirstChild("Frame")
-    if categoryFrame then
-        categoryFrame.BackgroundColor3 = theme.categoryBg
-    end
-    
-    -- Apply to module frame
+    -- Category frame и category buttons
     for _, child in pairs(_G.mainFrame:GetChildren()) do
-        if child:IsA("Frame") and child.Name ~= "SettingsContainer" and child.Size == UDim2.new(0, 150, 1, -6) then
+        if child:IsA("Frame") and child.Size.X.Offset == 75 then -- Category frame
+            child.BackgroundColor3 = theme.categoryBg
+            
+            -- Category buttons
+            local categoryList = child:FindFirstChildOfClass("ScrollingFrame")
+            if categoryList then
+                for _, categoryButton in pairs(categoryList:GetChildren()) do
+                    if categoryButton:IsA("Frame") and categoryButton.Size == UDim2.new(0, 50, 0, 50) then
+                        categoryButton.BackgroundColor3 = theme.categoryBg
+                        
+                        -- Category icons
+                        local icon = categoryButton:FindFirstChild("ImageLabel")
+                        if icon then
+                            -- Проверяем активную категорию
+                            if categoryButton.BackgroundColor3 == Color3.fromRGB(22, 28, 30) then
+                                icon.ImageColor3 = theme.accentColor
+                                categoryButton.BackgroundColor3 = theme.hoverBg
+                            else
+                                icon.ImageColor3 = theme.textColorSecondary
+                            end
+                        end
+                    end
+                end
+            end
+        elseif child:IsA("Frame") and child.Size.X.Offset == 150 then -- Module frame
             child.BackgroundColor3 = theme.moduleBg
             
-            -- Update module buttons
+            -- Module buttons
             local moduleList = child:FindFirstChildOfClass("ScrollingFrame")
             if moduleList then
                 for _, moduleButton in pairs(moduleList:GetChildren()) do
-                    if moduleButton:IsA("Frame") then
+                    if moduleButton:IsA("Frame") and moduleButton.Size == UDim2.new(1, -20, 0, 40) then
                         moduleButton.BackgroundColor3 = theme.elementBg
+                        
                         local textLabel = moduleButton:FindFirstChildOfClass("TextLabel")
                         if textLabel then
-                            textLabel.TextColor3 = theme.textColorSecondary
+                            -- Проверяем активный модуль
+                            if textLabel.TextColor3 == Color3.fromRGB(255, 75, 75) then
+                                textLabel.TextColor3 = theme.accentColor
+                                moduleButton.BackgroundColor3 = theme.hoverBg
+                            else
+                                textLabel.TextColor3 = theme.textColorSecondary
+                            end
                         end
                     end
                 end
@@ -444,34 +469,77 @@ local function applyTheme(themeName)
         end
     end
     
-    -- Apply to settings container
+    -- Settings container
     local settingsContainer = _G.mainFrame:FindFirstChild("SettingsContainer")
-    if settingsContainer then
+    if settingsContainer and settingsContainer.BackgroundTransparency < 1 then
         settingsContainer.BackgroundColor3 = theme.settingsBg
         
-        -- Update all settings elements
-        local function updateSettingsElements(container)
+        -- Apply theme to all settings recursively
+        local function updateSettingsTheme(container)
             for _, child in pairs(container:GetChildren()) do
                 if child:IsA("Frame") then
-                    updateSettingsElements(child)
+                    updateSettingsTheme(child)
+                    
+                    -- Toggle switches
+                    if child.Size == UDim2.new(0, 40, 0, 20) then -- Switch track
+                        child.BackgroundColor3 = theme.toggleBg
+                    end
+                    
+                    -- Slider backgrounds
+                    if child.Size.Y.Offset == 6 then -- Slider track
+                        child.BackgroundColor3 = theme.textColorSecondary
+                        
+                        -- Slider active part
+                        local activePart = child:FindFirstChild("Frame")
+                        if activePart and activePart.BackgroundColor3 == Color3.fromRGB(255, 75, 75) then
+                            activePart.BackgroundColor3 = theme.accentColor
+                        end
+                    end
+                    
+                    -- Slider circles
+                    if child.Size == UDim2.new(0, 12, 0, 12) or child.Size == UDim2.new(0, 15, 0, 15) then
+                        if child.BackgroundColor3 == Color3.fromRGB(255, 75, 75) or child.BackgroundColor3 == Color3.fromRGB(255, 255, 255) then
+                            child.BackgroundColor3 = theme.accentColor
+                        end
+                    end
+                    
+                    -- Dropdown and text field backgrounds
+                    if child.Size == UDim2.new(0, 120, 0, 30) then
+                        if child.BackgroundColor3 == Color3.fromRGB(20, 20, 22) or child.BackgroundColor3 == Color3.fromRGB(40, 40, 40) then
+                            child.BackgroundColor3 = theme.elementBg
+                        end
+                    end
+                    
                 elseif child:IsA("TextLabel") then
-                    if child.TextColor3 == Color3.fromRGB(142, 142, 142) then
+                    -- Setting labels
+                    if child.Font == Enum.Font.SourceSansBold and child.TextSize == 22 then
                         child.TextColor3 = theme.textColorSecondary
                     elseif child.TextColor3 == Color3.fromRGB(200, 200, 200) then
                         child.TextColor3 = theme.textColor
                     end
+                    
                 elseif child:IsA("TextButton") then
+                    -- Buttons
                     if child.BackgroundColor3 == Color3.fromRGB(20, 20, 22) then
                         child.BackgroundColor3 = theme.elementBg
+                    end
+                    if child.TextColor3 == Color3.fromRGB(200, 200, 200) then
+                        child.TextColor3 = theme.textColor
+                    end
+                    
+                elseif child:IsA("TextBox") then
+                    -- Text boxes
+                    if child.TextColor3 == Color3.fromRGB(200, 200, 200) then
+                        child.TextColor3 = theme.textColor
                     end
                 end
             end
         end
         
-        updateSettingsElements(settingsContainer)
+        updateSettingsTheme(settingsContainer)
     end
     
-    -- Update header labels
+    -- Header labels
     if activeCategoryLabel then
         activeCategoryLabel.TextColor3 = theme.textColorSecondary
     end
@@ -482,6 +550,20 @@ local function applyTheme(themeName)
         moduleNameLabel.TextColor3 = theme.accentColor
     end
     
+    -- GUI Settings button
+    for _, child in pairs(_G.mainFrame:GetChildren()) do
+        if child:IsA("Frame") and child.Size.X.Offset == 75 then -- Category frame
+            local settingsButton = child:FindFirstChild("Frame")
+            if settingsButton and settingsButton.Position == UDim2.new(0, 12, 0, 530) then
+                settingsButton.BackgroundColor3 = theme.categoryBg
+                local settingsIcon = settingsButton:FindFirstChild("ImageLabel")
+                if settingsIcon then
+                    settingsIcon.ImageColor3 = theme.textColorSecondary
+                end
+            end
+        end
+    end
+    
     saveGUISettings()
 end
 
@@ -489,45 +571,65 @@ local function applyBlurEffect(intensity)
     GUI_SETTINGS.blurFactor = math.clamp(intensity, 0, 1)
     
     if _G.mainFrame then
-        -- Remove existing blur
+        -- Remove existing blur effects
         local existingBlur = _G.mainFrame:FindFirstChild("BlurFrame")
         if existingBlur then
             existingBlur:Destroy()
         end
         
-        if intensity > 0.1 then
-            -- Create backdrop blur frame
+        local existingLightingBlur = game.Lighting:FindFirstChild("UmbrellaBlur")
+        if existingLightingBlur then
+            existingLightingBlur:Destroy()
+        end
+        
+        if intensity > 0.05 then
+            -- Create backdrop blur frame behind GUI
             local blurFrame = Instance.new("Frame")
             blurFrame.Name = "BlurFrame"
-            blurFrame.Size = UDim2.new(1, 0, 1, 0)
-            blurFrame.Position = UDim2.new(0, 0, 0, 0)
+            blurFrame.Size = UDim2.new(1, 20, 1, 20)
+            blurFrame.Position = UDim2.new(0, -10, 0, -10)
             blurFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-            blurFrame.BackgroundTransparency = 1 - (intensity * 0.3)
+            blurFrame.BackgroundTransparency = 0.3 + (intensity * 0.4)
             blurFrame.BorderSizePixel = 0
             blurFrame.ZIndex = _G.mainFrame.ZIndex - 1
             blurFrame.Parent = _G.mainFrame
             
             local blurCorner = Instance.new("UICorner")
-            blurCorner.CornerRadius = UDim.new(0, 8)
+            blurCorner.CornerRadius = UDim.new(0, 12)
             blurCorner.Parent = blurFrame
             
-            -- Create glass effect
+            -- Glass effect overlay
             local glassEffect = Instance.new("Frame")
             glassEffect.Size = UDim2.new(1, 0, 1, 0)
             glassEffect.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            glassEffect.BackgroundTransparency = 0.95 - (intensity * 0.1)
+            glassEffect.BackgroundTransparency = 0.92 - (intensity * 0.15)
             glassEffect.BorderSizePixel = 0
             glassEffect.ZIndex = blurFrame.ZIndex + 1
             glassEffect.Parent = blurFrame
             
             local glassCorner = Instance.new("UICorner")
-            glassCorner.CornerRadius = UDim.new(0, 8)
+            glassCorner.CornerRadius = UDim.new(0, 12)
             glassCorner.Parent = glassEffect
+            
+            -- Gradient overlay for extra effect
+            local gradient = Instance.new("UIGradient")
+            gradient.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(200, 200, 255)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
+            })
+            gradient.Transparency = NumberSequence.new({
+                NumberSequenceKeypoint.new(0, 0.95),
+                NumberSequenceKeypoint.new(0.5, 0.98),
+                NumberSequenceKeypoint.new(1, 0.95)
+            })
+            gradient.Rotation = 45
+            gradient.Parent = glassEffect
         end
         
-        -- Adjust main frame transparency based on blur
-        local baseTransparency = 0.05
-        local blurTransparency = intensity * 0.2
+        -- Adjust main frame transparency
+        local baseTransparency = 0.02
+        local blurTransparency = intensity * 0.15
         _G.mainFrame.BackgroundTransparency = baseTransparency + blurTransparency
     end
     
@@ -932,6 +1034,9 @@ local function createScrollableContainer(parent, size, position, padding)
 end
 
 local function createDropDown(parent, setting, position)
+    
+    local theme = THEMES[GUI_SETTINGS.theme]
+    
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(0, 280, 0, 50)
     frame.Position = position
@@ -951,28 +1056,28 @@ local function createDropDown(parent, setting, position)
     label.ZIndex = frame.ZIndex + 1
     label.Parent = frame
 
-    local dropDownButton = Instance.new("TextButton")
-    dropDownButton.Size = UDim2.new(0, 120, 0, 30)
-    dropDownButton.Position = UDim2.new(0.6, 310, 0.5, -15)
-    dropDownButton.BackgroundColor3 = Color3.fromRGB(20, 20, 22)
-    dropDownButton.BorderSizePixel = 0
-    dropDownButton.AutoButtonColor = false
-    dropDownButton.Text = ""
-    dropDownButton.ZIndex = frame.ZIndex + 2
-    dropDownButton.Parent = frame
+local dropDownButton = Instance.new("TextButton")
+dropDownButton.Size = UDim2.new(0, 120, 0, 30)
+dropDownButton.Position = UDim2.new(0.6, 310, 0.5, -15)
+dropDownButton.BackgroundColor3 = theme.elementBg -- ИСПРАВЛЕНО
+dropDownButton.BorderSizePixel = 0
+dropDownButton.AutoButtonColor = false
+dropDownButton.Text = ""
+dropDownButton.ZIndex = frame.ZIndex + 2
+dropDownButton.Parent = frame
 
     local buttonCorner = Instance.new("UICorner")
     buttonCorner.CornerRadius = UDim.new(0, 4)
     buttonCorner.Parent = dropDownButton
 
-    local selectedText = Instance.new("TextLabel")
-    selectedText.Size = UDim2.new(1, -10, 1, 0)
-    selectedText.Position = UDim2.new(0, 8, 0, 0)
-    selectedText.BackgroundTransparency = 1
-    selectedText.Text = setting.default or "Select..."
-    selectedText.TextColor3 = Color3.fromRGB(200, 200, 200)
-    if selectedText.Text ~= "Select..." then
-    selectedText.TextColor3 = Color3.fromRGB(255, 75, 75)
+local selectedText = Instance.new("TextLabel")
+selectedText.Size = UDim2.new(1, -10, 1, 0)
+selectedText.Position = UDim2.new(0, 8, 0, 0)
+selectedText.BackgroundTransparency = 1
+selectedText.Text = setting.default or "Select..."
+selectedText.TextColor3 = theme.textColor -- ИСПРАВЛЕНО
+if selectedText.Text ~= "Select..." then
+    selectedText.TextColor3 = theme.accentColor -- ИСПРАВЛЕНО
 end
     selectedText.Font = Enum.Font.SourceSans
     selectedText.TextSize = 16
@@ -1178,6 +1283,9 @@ end
 end
 
 local function createButton(parent, setting, position)
+
+    local theme = THEMES[GUI_SETTINGS.theme]
+    
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(0, 280, 0, 50)
     frame.Position = position
@@ -1198,12 +1306,12 @@ local function createButton(parent, setting, position)
     label.Parent = frame
 
     local buttonBackground = Instance.new("TextButton")
-    buttonBackground.Size = UDim2.new(0, 120, 0, 30)
-    buttonBackground.Position = UDim2.new(0.6, 312, 0.5, -15)
-    buttonBackground.BackgroundColor3 = Color3.fromRGB(20, 20, 22)
-    buttonBackground.BorderSizePixel = 0
-    buttonBackground.Text = setting.text or "Click"
-    buttonBackground.TextColor3 = Color3.fromRGB(200, 200, 200)
+buttonBackground.Size = UDim2.new(0, 120, 0, 30)
+buttonBackground.Position = UDim2.new(0.6, 312, 0.5, -15)
+buttonBackground.BackgroundColor3 = theme.elementBg -- ИСПРАВЛЕНО
+buttonBackground.BorderSizePixel = 0
+buttonBackground.Text = setting.text or "Click"
+buttonBackground.TextColor3 = theme.textColor -- ИСПРАВЛЕНО
     buttonBackground.Font = Enum.Font.SourceSansBold
     buttonBackground.TextSize = 18
     buttonBackground.AutoButtonColor = false
@@ -1239,6 +1347,9 @@ end
 
 
 local function createTextField(parent, setting, position)
+
+    local theme = THEMES[GUI_SETTINGS.theme]
+    
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(0, 280, 0, 50)
     frame.Position = position
@@ -1258,14 +1369,14 @@ local function createTextField(parent, setting, position)
     label.ZIndex = frame.ZIndex + 1
     label.Parent = frame
 
-    local textBoxBackground = Instance.new("Frame")
-    textBoxBackground.Size = UDim2.new(0, 120, 0, 30)
-    textBoxBackground.Position = UDim2.new(0.6, 312, 0.5, -15)
-    textBoxBackground.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    textBoxBackground.BorderSizePixel = 0
-    textBoxBackground.ClipsDescendants = true 
-    textBoxBackground.ZIndex = frame.ZIndex + 1
-    textBoxBackground.Parent = frame
+local textBoxBackground = Instance.new("Frame")
+textBoxBackground.Size = UDim2.new(0, 120, 0, 30)
+textBoxBackground.Position = UDim2.new(0.6, 312, 0.5, -15)
+textBoxBackground.BackgroundColor3 = theme.elementBg -- ИСПРАВЛЕНО
+textBoxBackground.BorderSizePixel = 0
+textBoxBackground.ClipsDescendants = true 
+textBoxBackground.ZIndex = frame.ZIndex + 1
+textBoxBackground.Parent = frame
 
     local textBoxCorner = Instance.new("UICorner")
     textBoxCorner.CornerRadius = UDim.new(0, 4)
@@ -1277,11 +1388,11 @@ local function createTextField(parent, setting, position)
     end
 
     local textBox = Instance.new("TextBox")
-    textBox.Size = UDim2.new(1, -10, 1, -4)
-    textBox.Position = UDim2.new(0, 5, 0, 2)
-    textBox.BackgroundTransparency = 1
-    textBox.Text = currentValue
-    textBox.TextColor3 = Color3.fromRGB(200, 200, 200)
+textBox.Size = UDim2.new(1, -10, 1, -4)
+textBox.Position = UDim2.new(0, 5, 0, 2)
+textBox.BackgroundTransparency = 1
+textBox.Text = currentValue
+textBox.TextColor3 = theme.textColor -- ИСПРАВЛЕНО
     textBox.Font = Enum.Font.SourceSans
     textBox.TextSize = 18
     textBox.TextXAlignment = Enum.TextXAlignment.Left
@@ -1385,17 +1496,19 @@ local function createSlider(parent, setting, position)
     valueDisplay.ZIndex = frame.ZIndex + 1
     valueDisplay.Parent = frame
 
+    local theme = THEMES[GUI_SETTINGS.theme]
+
     local sliderBackground = Instance.new("Frame")
     sliderBackground.Size = UDim2.new(1, -11, 0, 6)
     sliderBackground.Position = UDim2.new(0, 10, 0.6, -3)
-    sliderBackground.BackgroundColor3 = Color3.fromRGB(142, 142, 142)
+    sliderBackground.BackgroundColor3 = theme.textColorSecondary
     sliderBackground.BorderSizePixel = 0
     sliderBackground.ZIndex = frame.ZIndex + 1
     sliderBackground.Parent = frame
 
     local sliderActive = Instance.new("Frame")
     sliderActive.Size = UDim2.new((currentValue - setting.min) / (setting.max - setting.min), 0, 1, 0)
-    sliderActive.BackgroundColor3 = Color3.fromRGB(255, 75, 75)
+    sliderActive.BackgroundColor3 = theme.accentColor
     sliderActive.BorderSizePixel = 0
     sliderActive.ZIndex = sliderBackground.ZIndex + 1
     sliderActive.Parent = sliderBackground
@@ -1411,7 +1524,7 @@ local function createSlider(parent, setting, position)
     local sliderCircle = Instance.new("Frame")
     sliderCircle.Size = UDim2.new(0, 12, 0, 12)
     sliderCircle.Position = UDim2.new((currentValue - setting.min) / (setting.max - setting.min), -6, 0.5, -6)
-    sliderCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    sliderCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Keep white for contrast
     sliderCircle.BorderSizePixel = 0
     sliderCircle.ZIndex = sliderBackground.ZIndex + 2
     sliderCircle.Parent = sliderBackground
@@ -1478,6 +1591,7 @@ local function createSlider(parent, setting, position)
 end
 
 local function createToggle(parent, setting, position)
+    
     local outerFrame = Instance.new("Frame")
     outerFrame.Size = UDim2.new(0, 280, 0, 50)
     outerFrame.Position = position
@@ -1533,75 +1647,80 @@ local function createToggle(parent, setting, position)
         keybindText.Parent = keybindButton
 
         -- ИСПРАВЛЕНО: Функция обновления отображения бинда
-        local function updateKeybindDisplay()
-            if not setting.moduleName then return end
-            
-            local savedBind = keybindSystem.savedBinds[setting.moduleName]
-            if savedBind then
-                local keyCode = Enum.KeyCode[savedBind]
-                if keyCode then
-                    keybindText.Text = "[" .. getKeyName(keyCode) .. "]"
-                else
-                    keybindText.Text = "[None]"
-                    keybindText.TextColor3 = Color3.fromRGB(200, 200, 200)
-                    keybindSystem.savedBinds[setting.moduleName] = nil
-                    saveSettings()
-                end
-            else
-                keybindText.Text = "[None]"
-                keybindText.TextColor3 = Color3.fromRGB(200, 200, 200)
-            end
+local function updateKeybindDisplay()
+    if not setting.moduleName then return end
+    
+    local theme = THEMES[GUI_SETTINGS.theme] -- ДОБАВЬ ЭТУ СТРОКУ
+    local savedBind = keybindSystem.savedBinds[setting.moduleName]
+    if savedBind then
+        local keyCode = Enum.KeyCode[savedBind]
+        if keyCode then
+            keybindText.Text = "[" .. getKeyName(keyCode) .. "]"
+            keybindText.TextColor3 = theme.accentColor -- ИСПРАВЛЕНО
+        else
+            keybindText.Text = "[None]"
+            keybindText.TextColor3 = theme.textColor -- ИСПРАВЛЕНО
+            keybindSystem.savedBinds[setting.moduleName] = nil
+            saveSettings()
         end
+    else
+        keybindText.Text = "[None]"
+        keybindText.TextColor3 = theme.textColor -- ИСПРАВЛЕНО
+    end
+end
         
         -- Сразу обновляем отображение
         updateKeybindDisplay()
 
-        -- Hover эффекты для кнопки бинда
-        keybindButton.MouseEnter:Connect(function()
-            TweenService:Create(keybindButton, TweenInfo.new(0.2), {
-                BackgroundColor3 = Color3.fromRGB(40, 40, 42)
-            }):Play()
-        end)
+keybindButton.MouseEnter:Connect(function()
+    local theme = THEMES[GUI_SETTINGS.theme]
+    TweenService:Create(keybindButton, TweenInfo.new(0.2), {
+        BackgroundColor3 = theme.hoverBg -- ИСПРАВЛЕНО
+    }):Play()
+end)
 
-        keybindButton.MouseLeave:Connect(function()
-            TweenService:Create(keybindButton, TweenInfo.new(0.2), {
-                BackgroundColor3 = Color3.fromRGB(30, 30, 32)
-            }):Play()
-        end)
+keybindButton.MouseLeave:Connect(function()
+    local theme = THEMES[GUI_SETTINGS.theme]
+    TweenService:Create(keybindButton, TweenInfo.new(0.2), {
+        BackgroundColor3 = theme.elementBg -- ИСПРАВЛЕНО
+    }):Play()
+end)
 
-        -- Обработчик клика на кнопку бинда
         keybindButton.MouseButton1Click:Connect(function()
-            keybindText.Text = "[...]"
-            keybindSystem.listeningForBind = setting.moduleName
-            keybindSystem.listeningCallback = function(keyName)
-                if keyName == "None" then
-                    keybindText.Text = "[None]"
-                    keybindText.TextColor3 = Color3.fromRGB(200, 200, 200)
-                    -- Убираем бинд
-                    for keyCode, moduleName in pairs(keybindSystem.binds) do
-                        if moduleName == setting.moduleName then
-                            keybindSystem.binds[keyCode] = nil
-                            break
-                        end
-                    end
-                    keybindSystem.savedBinds[setting.moduleName] = nil
-                    saveSettings()
-                else
-                    keybindText.Text = "[" .. keyName .. "]"
-                    keybindText.TextColor3 = Color3.fromRGB(255, 75, 75)
+        keybindText.Text = "[...]"
+        keybindSystem.listeningForBind = setting.moduleName
+        keybindSystem.listeningCallback = function(keyName)
+        local theme = THEMES[GUI_SETTINGS.theme] -- ДОБАВЬ ЭТУ СТРОКУ
+        if keyName == "None" then
+            keybindText.Text = "[None]"
+            keybindText.TextColor3 = theme.textColor -- ИСПРАВЛЕНО
+            -- Убираем бинд
+            for keyCode, moduleName in pairs(keybindSystem.binds) do
+                if moduleName == setting.moduleName then
+                    keybindSystem.binds[keyCode] = nil
+                    break
                 end
             end
-        end)
+            keybindSystem.savedBinds[setting.moduleName] = nil
+            saveSettings()
+        else
+            keybindText.Text = "[" .. keyName .. "]"
+            keybindText.TextColor3 = theme.accentColor -- ИСПРАВЛЕНО
+        end
+    end
+end)
         
         -- Сохраняем функцию обновления для внешнего доступа
         setting._updateKeybindDisplay = updateKeybindDisplay
     end
-
+    
+    local theme = THEMES[GUI_SETTINGS.theme]
+    
     -- Переключатель
     local switchTrack = Instance.new("Frame")
     switchTrack.Size = UDim2.new(0, 40, 0, 20)
     switchTrack.Position = UDim2.new(0.6, 390, 0.5, -10)
-    switchTrack.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    switchTrack.BackgroundColor3 = theme.toggleBg
     switchTrack.BorderSizePixel = 0
     switchTrack.ZIndex = outerFrame.ZIndex + 1
     switchTrack.Parent = outerFrame
@@ -1613,7 +1732,7 @@ local function createToggle(parent, setting, position)
     local switchCircle = Instance.new("Frame")
     switchCircle.Size = UDim2.new(0, 18, 0, 18)
     switchCircle.Position = UDim2.new(0, 1, 0, 1)
-    switchCircle.BackgroundColor3 = Color3.fromRGB(142, 142, 142)
+    switchCircle.BackgroundColor3 = theme.textColorSecondary
     switchCircle.BorderSizePixel = 0
     switchCircle.ZIndex = switchTrack.ZIndex + 1
     switchCircle.Parent = switchTrack
@@ -1631,10 +1750,10 @@ local function createToggle(parent, setting, position)
         isEnabled = newState
         if isEnabled then
             switchCircle:TweenPosition(UDim2.new(1, -19, 0, 1), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
-            switchCircle.BackgroundColor3 = Color3.fromRGB(255, 75, 75)
+            switchCircle.BackgroundColor3 = theme.accentColor
         else
             switchCircle:TweenPosition(UDim2.new(0, 1, 0, 1), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
-            switchCircle.BackgroundColor3 = Color3.fromRGB(142, 142, 142)
+            switchCircle.BackgroundColor3 = theme.textColorSecondary
         end
 
         if not API.savedSettings[setting.moduleName] then
@@ -1826,53 +1945,58 @@ local function createModuleButton(parent, moduleData)
     clickDetector.ZIndex = moduleButton.ZIndex + 2
     clickDetector.Parent = moduleButton
 
-    clickDetector.MouseEnter:Connect(function()
-        tweenColor(moduleButton, "BackgroundColor3", Color3.fromRGB(20, 20, 22), 0.15)
-        tweenColor(moduleName, "TextColor3", Color3.fromRGB(180, 183, 193), 0.15)
-    end)
+clickDetector.MouseEnter:Connect(function()
+    local theme = THEMES[GUI_SETTINGS.theme]
+    tweenColor(moduleButton, "BackgroundColor3", theme.hoverBg, 0.15)
+    tweenColor(moduleName, "TextColor3", theme.textColor, 0.15)
+end)
 
-    clickDetector.MouseLeave:Connect(function()
-        if moduleSystem.activeModuleName == moduleData.name then
-            tweenColor(moduleButton, "BackgroundColor3", Color3.fromRGB(22, 28, 30), 0.15)
-            tweenColor(moduleName, "TextColor3", Color3.fromRGB(255, 75, 75), 0.15)
-        else
-            tweenColor(moduleButton, "BackgroundColor3", Color3.fromRGB(15, 15, 17), 0.15)
-            tweenColor(moduleName, "TextColor3", Color3.fromRGB(150, 153, 163), 0.15)
-        end
-    end)
+clickDetector.MouseLeave:Connect(function()
+    local theme = THEMES[GUI_SETTINGS.theme]
+    if moduleSystem.activeModuleName == moduleData.name then
+        tweenColor(moduleButton, "BackgroundColor3", theme.hoverBg, 0.15)
+        tweenColor(moduleName, "TextColor3", theme.accentColor, 0.15)
+    else
+        tweenColor(moduleButton, "BackgroundColor3", theme.elementBg, 0.15)
+        tweenColor(moduleName, "TextColor3", theme.textColorSecondary, 0.15)
+    end
+end)
 
-    clickDetector.MouseButton1Click:Connect(function()
-        -- Сбрасываем другие кнопки
-        for _, otherButton in pairs(parent:GetChildren()) do
-            if otherButton:IsA("Frame") and otherButton ~= moduleButton then
-                local otherLine = otherButton:FindFirstChild("Frame")
-                local otherText = otherButton:FindFirstChild("TextLabel")
-                
-                if otherLine then
-                    tweenTransparency(otherLine, "Transparency", 1)
-                    tweenSize(otherLine, "Size", UDim2.new(0, 2, 0, 0))
-                end
-                if otherText then
-                    tweenColor(otherText, "TextColor3", Color3.fromRGB(150, 153, 163))
-                end
-                tweenColor(otherButton, "BackgroundColor3", Color3.fromRGB(15, 15, 17))
+clickDetector.MouseButton1Click:Connect(function()
+    local theme = THEMES[GUI_SETTINGS.theme] -- ДОБАВЬ ЭТУ СТРОКУ
+    
+    -- Сбрасываем другие кнопки
+    for _, otherButton in pairs(parent:GetChildren()) do
+        if otherButton:IsA("Frame") and otherButton ~= moduleButton then
+            local otherLine = otherButton:FindFirstChild("Frame")
+            local otherText = otherButton:FindFirstChild("TextLabel")
+            
+            if otherLine then
+                tweenTransparency(otherLine, "Transparency", 1)
+                tweenSize(otherLine, "Size", UDim2.new(0, 2, 0, 0))
             end
+            if otherText then
+                tweenColor(otherText, "TextColor3", theme.textColorSecondary) -- ИСПРАВЛЕНО
+            end
+            tweenColor(otherButton, "BackgroundColor3", theme.elementBg) -- ИСПРАВЛЕНО
         end
+    end
 
-        -- Активируем текущую кнопку
-        tweenColor(moduleButton, "BackgroundColor3", Color3.fromRGB(22, 28, 30))
-        tweenColor(moduleName, "TextColor3", Color3.fromRGB(255, 75, 75))
-        activeLine.Transparency = 0
-        tweenSize(activeLine, "Size", UDim2.new(0, 2, 1, -20))
+    -- Активируем текущую кнопку
+    tweenColor(moduleButton, "BackgroundColor3", theme.hoverBg) -- ИСПРАВЛЕНО
+    tweenColor(moduleName, "TextColor3", theme.accentColor) -- ИСПРАВЛЕНО
+    activeLine.Transparency = 0
+    activeLine.BackgroundColor3 = theme.accentColor -- ДОБАВЬ ЭТУ СТРОКУ
+    tweenSize(activeLine, "Size", UDim2.new(0, 2, 1, -20))
 
-        -- ИСПРАВЛЕНО: Устанавливаем activeModuleName
-        slashLabel.Visible = true
-        moduleNameLabel.Text = moduleData.name
-        moduleNameLabel.TextColor3 = Color3.fromRGB(255, 75, 75)
-        moduleSystem.activeModuleName = moduleData.name  -- ВАЖНО: Устанавливаем переменную
-        
-        showModuleSettings(moduleData.name)
-    end)
+    -- ИСПРАВЛЕНО: Устанавливаем activeModuleName
+    slashLabel.Visible = true
+    moduleNameLabel.Text = moduleData.name
+    moduleNameLabel.TextColor3 = theme.accentColor -- ИСПРАВЛЕНО
+    moduleSystem.activeModuleName = moduleData.name
+    
+    showModuleSettings(moduleData.name)
+end)
 
     return moduleButton
 end
@@ -2180,51 +2304,59 @@ function createMainUI()
         clickDetector.ZIndex = categoryButton.ZIndex + 2
         clickDetector.Parent = categoryButton
 
-        clickDetector.MouseEnter:Connect(function()
-            if activeCategory ~= categoryButton then
-                tweenColor(iconImage, "ImageColor3", Color3.fromRGB(200, 200, 200), 0.15)
-            end
-        end)
+clickDetector.MouseEnter:Connect(function()
+    if activeCategory ~= categoryButton then
+        local theme = THEMES[GUI_SETTINGS.theme]
+        tweenColor(iconImage, "ImageColor3", theme.textColor, 0.15)
+        tweenColor(categoryButton, "BackgroundColor3", theme.hoverBg, 0.15)
+    end
+end)
 
-        clickDetector.MouseLeave:Connect(function()
-            if activeCategory ~= categoryButton then
-                tweenColor(iconImage, "ImageColor3", Color3.fromRGB(150, 150, 150), 0.15)
-            end
-        end)
+clickDetector.MouseLeave:Connect(function()
+    if activeCategory ~= categoryButton then
+        local theme = THEMES[GUI_SETTINGS.theme]
+        tweenColor(iconImage, "ImageColor3", theme.textColorSecondary, 0.15)
+        tweenColor(categoryButton, "BackgroundColor3", theme.categoryBg, 0.15)
+    end
+end)
 
-        clickDetector.MouseButton1Click:Connect(function()
-            if activeCategory == categoryButton then return end
+clickDetector.MouseButton1Click:Connect(function()
+    if activeCategory == categoryButton then return end
+    
+    local theme = THEMES[GUI_SETTINGS.theme] -- ДОБАВЬ ЭТУ СТРОКУ
 
-            if activeCategory then
-                local prevIcon = activeCategory:FindFirstChild("ImageLabel")
-                local prevLine = activeCategory:FindFirstChild("Frame")
+    if activeCategory then
+        local prevIcon = activeCategory:FindFirstChild("ImageLabel")
+        local prevLine = activeCategory:FindFirstChild("Frame")
 
-                if prevIcon then
-                    tweenColor(prevIcon, "ImageColor3", Color3.fromRGB(150, 150, 150))
-                end
-                if prevLine then
-                    tweenTransparency(prevLine, "Transparency", 1)
-                    tweenSize(prevLine, "Size", UDim2.new(0, 2, 0, 0))
-                end
-                tweenColor(activeCategory, "BackgroundColor3", Color3.fromRGB(15, 15, 17))
-            end
+        if prevIcon then
+            tweenColor(prevIcon, "ImageColor3", theme.textColorSecondary) -- ИСПРАВЛЕНО
+        end
+        if prevLine then
+            tweenTransparency(prevLine, "Transparency", 1)
+            tweenSize(prevLine, "Size", UDim2.new(0, 2, 0, 0))
+        end
+        tweenColor(activeCategory, "BackgroundColor3", theme.categoryBg) -- ИСПРАВЛЕНО
+    end
 
-            activeCategory = categoryButton
-            moduleSystem.activeCategory = name
+    activeCategory = categoryButton
+    moduleSystem.activeCategory = name
 
-            tweenColor(categoryButton, "BackgroundColor3", Color3.fromRGB(22, 28, 30))
-            tweenColor(iconImage, "ImageColor3", Color3.fromRGB(255, 75, 75))
+    tweenColor(categoryButton, "BackgroundColor3", theme.hoverBg) -- ИСПРАВЛЕНО
+    tweenColor(iconImage, "ImageColor3", theme.accentColor) -- ИСПРАВЛЕНО
 
-            redLine.Transparency = 0
-            tweenSize(redLine, "Size", UDim2.new(0, 2, 0, 20))
+    redLine.Transparency = 0
+    redLine.BackgroundColor3 = theme.accentColor -- ДОБАВЬ ЭТУ СТРОКУ
+    tweenSize(redLine, "Size", UDim2.new(0, 2, 0, 20))
 
-            activeCategoryLabel.Text = name
-            slashLabel.Visible = false
-            moduleNameLabel.Text = ""
-            
-            clearSettingsContainer()
-            updateModuleList(moduleList, name)
-        end)
+    activeCategoryLabel.Text = name
+    activeCategoryLabel.TextColor3 = theme.textColorSecondary -- ДОБАВЬ ЭТУ СТРОКУ
+    slashLabel.Visible = false
+    moduleNameLabel.Text = ""
+    
+    clearSettingsContainer()
+    updateModuleList(moduleList, name)
+end)
     end
 
     addCategory("http://www.roblox.com/asset/?id=103577523623326", "Server")
@@ -2814,10 +2946,22 @@ end)
     API:loadSettings()
     task.wait(0.1) -- небольшая задержка для завершения всех процессов
     API:applyPendingCallbacks()
+
+        task.spawn(function()
+    task.wait(0.5) -- Wait for UI to fully load
+    refreshAllElements()
+end)
 end
 
 function API:registerCallback(moduleName, callbacks)
     self.callbacks[moduleName] = callbacks
+end
+
+local function refreshAllElements()
+    if _G.mainFrame and _G.mainFrame.Visible then
+        applyTheme(GUI_SETTINGS.theme)
+        applyBlurEffect(GUI_SETTINGS.blurFactor)
+    end
 end
 
 -- ДОБАВЛЕНО: Функция для показа нотификаций из внешнего кода
