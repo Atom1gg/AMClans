@@ -91,6 +91,71 @@ local THEMES = {
         elementBg = Color3.fromRGB(60, 60, 67),
         hoverBg = Color3.fromRGB(72, 72, 74),
         toggleBg = Color3.fromRGB(99, 99, 102)
+    },
+    Neon = {
+        name = "Neon",
+        mainBg = Color3.fromRGB(12, 12, 15),
+        categoryBg = Color3.fromRGB(18, 18, 22),
+        moduleBg = Color3.fromRGB(18, 18, 22),
+        settingsBg = Color3.fromRGB(18, 18, 22),
+        accentColor = Color3.fromRGB(0, 255, 127),
+        textColor = Color3.fromRGB(220, 220, 220),
+        textColorSecondary = Color3.fromRGB(160, 160, 160),
+        elementBg = Color3.fromRGB(25, 25, 30),
+        hoverBg = Color3.fromRGB(35, 35, 40),
+        toggleBg = Color3.fromRGB(45, 45, 50)
+    },
+    Purple = {
+        name = "Purple",
+        mainBg = Color3.fromRGB(15, 10, 25),
+        categoryBg = Color3.fromRGB(20, 15, 30),
+        moduleBg = Color3.fromRGB(20, 15, 30),
+        settingsBg = Color3.fromRGB(20, 15, 30),
+        accentColor = Color3.fromRGB(138, 43, 226),
+        textColor = Color3.fromRGB(210, 190, 230),
+        textColorSecondary = Color3.fromRGB(150, 130, 170),
+        elementBg = Color3.fromRGB(30, 25, 40),
+        hoverBg = Color3.fromRGB(40, 35, 50),
+        toggleBg = Color3.fromRGB(50, 45, 60)
+    },
+    Ocean = {
+        name = "Ocean",
+        mainBg = Color3.fromRGB(10, 20, 30),
+        categoryBg = Color3.fromRGB(15, 25, 35),
+        moduleBg = Color3.fromRGB(15, 25, 35),
+        settingsBg = Color3.fromRGB(15, 25, 35),
+        accentColor = Color3.fromRGB(0, 150, 255),
+        textColor = Color3.fromRGB(190, 210, 230),
+        textColorSecondary = Color3.fromRGB(130, 150, 170),
+        elementBg = Color3.fromRGB(25, 35, 45),
+        hoverBg = Color3.fromRGB(35, 45, 55),
+        toggleBg = Color3.fromRGB(45, 55, 65)
+    },
+    Sunset = {
+        name = "Sunset",
+        mainBg = Color3.fromRGB(25, 15, 10),
+        categoryBg = Color3.fromRGB(30, 20, 15),
+        moduleBg = Color3.fromRGB(30, 20, 15),
+        settingsBg = Color3.fromRGB(30, 20, 15),
+        accentColor = Color3.fromRGB(255, 140, 0),
+        textColor = Color3.fromRGB(230, 210, 190),
+        textColorSecondary = Color3.fromRGB(170, 150, 130),
+        elementBg = Color3.fromRGB(40, 30, 25),
+        hoverBg = Color3.fromRGB(50, 40, 35),
+        toggleBg = Color3.fromRGB(60, 50, 45)
+    },
+    Forest = {
+        name = "Forest",
+        mainBg = Color3.fromRGB(10, 25, 15),
+        categoryBg = Color3.fromRGB(15, 30, 20),
+        moduleBg = Color3.fromRGB(15, 30, 20),
+        settingsBg = Color3.fromRGB(15, 30, 20),
+        accentColor = Color3.fromRGB(50, 205, 50),
+        textColor = Color3.fromRGB(190, 230, 210),
+        textColorSecondary = Color3.fromRGB(130, 170, 150),
+        elementBg = Color3.fromRGB(25, 40, 30),
+        hoverBg = Color3.fromRGB(35, 50, 40),
+        toggleBg = Color3.fromRGB(45, 60, 50)
     }
 }
 
@@ -349,42 +414,121 @@ local function applyTheme(themeName)
     
     GUI_SETTINGS.theme = themeName
     
+    -- Apply to main frame
     _G.mainFrame.BackgroundColor3 = theme.mainBg
     
-    for _, frame in pairs(_G.mainFrame:GetChildren()) do
-        if frame:IsA("Frame") and frame.Name ~= "SettingsContainer" then
-            frame.BackgroundColor3 = theme.categoryBg
+    -- Apply to category frame
+    local categoryFrame = _G.mainFrame:FindFirstChild("Frame")
+    if categoryFrame then
+        categoryFrame.BackgroundColor3 = theme.categoryBg
+    end
+    
+    -- Apply to module frame
+    for _, child in pairs(_G.mainFrame:GetChildren()) do
+        if child:IsA("Frame") and child.Name ~= "SettingsContainer" and child.Size == UDim2.new(0, 150, 1, -6) then
+            child.BackgroundColor3 = theme.moduleBg
+            
+            -- Update module buttons
+            local moduleList = child:FindFirstChildOfClass("ScrollingFrame")
+            if moduleList then
+                for _, moduleButton in pairs(moduleList:GetChildren()) do
+                    if moduleButton:IsA("Frame") then
+                        moduleButton.BackgroundColor3 = theme.elementBg
+                        local textLabel = moduleButton:FindFirstChildOfClass("TextLabel")
+                        if textLabel then
+                            textLabel.TextColor3 = theme.textColorSecondary
+                        end
+                    end
+                end
+            end
         end
     end
     
+    -- Apply to settings container
     local settingsContainer = _G.mainFrame:FindFirstChild("SettingsContainer")
     if settingsContainer then
         settingsContainer.BackgroundColor3 = theme.settingsBg
+        
+        -- Update all settings elements
+        local function updateSettingsElements(container)
+            for _, child in pairs(container:GetChildren()) do
+                if child:IsA("Frame") then
+                    updateSettingsElements(child)
+                elseif child:IsA("TextLabel") then
+                    if child.TextColor3 == Color3.fromRGB(142, 142, 142) then
+                        child.TextColor3 = theme.textColorSecondary
+                    elseif child.TextColor3 == Color3.fromRGB(200, 200, 200) then
+                        child.TextColor3 = theme.textColor
+                    end
+                elseif child:IsA("TextButton") then
+                    if child.BackgroundColor3 == Color3.fromRGB(20, 20, 22) then
+                        child.BackgroundColor3 = theme.elementBg
+                    end
+                end
+            end
+        end
+        
+        updateSettingsElements(settingsContainer)
+    end
+    
+    -- Update header labels
+    if activeCategoryLabel then
+        activeCategoryLabel.TextColor3 = theme.textColorSecondary
+    end
+    if slashLabel then
+        slashLabel.TextColor3 = theme.textColorSecondary
+    end
+    if moduleNameLabel then
+        moduleNameLabel.TextColor3 = theme.accentColor
     end
     
     saveGUISettings()
 end
 
 local function applyBlurEffect(intensity)
-    GUI_SETTINGS.blurFactor = intensity
+    GUI_SETTINGS.blurFactor = math.clamp(intensity, 0, 1)
     
     if _G.mainFrame then
-        local existingBlur = game.Lighting:FindFirstChild("UmbrellaBlur")
+        -- Remove existing blur
+        local existingBlur = _G.mainFrame:FindFirstChild("BlurFrame")
         if existingBlur then
             existingBlur:Destroy()
         end
         
-        if intensity > 0 then
-            local blur = Instance.new("BlurEffect")
-            blur.Name = "UmbrellaBlur"
-            blur.Size = intensity * 10
-            blur.Parent = game.Lighting
+        if intensity > 0.1 then
+            -- Create backdrop blur frame
+            local blurFrame = Instance.new("Frame")
+            blurFrame.Name = "BlurFrame"
+            blurFrame.Size = UDim2.new(1, 0, 1, 0)
+            blurFrame.Position = UDim2.new(0, 0, 0, 0)
+            blurFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+            blurFrame.BackgroundTransparency = 1 - (intensity * 0.3)
+            blurFrame.BorderSizePixel = 0
+            blurFrame.ZIndex = _G.mainFrame.ZIndex - 1
+            blurFrame.Parent = _G.mainFrame
             
-            local transparency = math.max(0.1, 1 - intensity)
-            _G.mainFrame.BackgroundTransparency = transparency * 0.3
-        else
-            _G.mainFrame.BackgroundTransparency = 0
+            local blurCorner = Instance.new("UICorner")
+            blurCorner.CornerRadius = UDim.new(0, 8)
+            blurCorner.Parent = blurFrame
+            
+            -- Create glass effect
+            local glassEffect = Instance.new("Frame")
+            glassEffect.Size = UDim2.new(1, 0, 1, 0)
+            glassEffect.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            glassEffect.BackgroundTransparency = 0.95 - (intensity * 0.1)
+            glassEffect.BorderSizePixel = 0
+            glassEffect.ZIndex = blurFrame.ZIndex + 1
+            glassEffect.Parent = blurFrame
+            
+            local glassCorner = Instance.new("UICorner")
+            glassCorner.CornerRadius = UDim.new(0, 8)
+            glassCorner.Parent = glassEffect
         end
+        
+        -- Adjust main frame transparency based on blur
+        local baseTransparency = 0.05
+        local blurTransparency = intensity * 0.2
+        _G.mainFrame.BackgroundTransparency = baseTransparency + blurTransparency
     end
     
     saveGUISettings()
@@ -2329,9 +2473,12 @@ local function createAdvancedGuiSettingsWindow()
         end)
     end)
 
-    -- Menu Blur Factor
-    local blurContainer = createSettingContainer()
+        -- Menu Blur Factor
+    local blurContainer = Instance.new("Frame")
     blurContainer.Size = UDim2.new(1, 0, 0, 60)
+    blurContainer.BackgroundTransparency = 1
+    blurContainer.ZIndex = contentFrame.ZIndex + 1
+    blurContainer.Parent = contentFrame
 
     local blurLabel = Instance.new("TextLabel")
     blurLabel.Size = UDim2.new(0, 150, 0, 30)
@@ -2370,7 +2517,7 @@ local function createAdvancedGuiSettingsWindow()
     trackCorner.Parent = sliderTrack
 
     local sliderFill = Instance.new("Frame")
-    sliderFill.Size = UDim2.new(GUI_SETTINGS.blurFactor / 2, 0, 1, 0)
+    sliderFill.Size = UDim2.new(GUI_SETTINGS.blurFactor, 0, 1, 0)
     sliderFill.BackgroundColor3 = theme.accentColor
     sliderFill.BorderSizePixel = 0
     sliderFill.ZIndex = sliderTrack.ZIndex + 1
@@ -2382,7 +2529,7 @@ local function createAdvancedGuiSettingsWindow()
 
     local sliderHandle = Instance.new("Frame")
     sliderHandle.Size = UDim2.new(0, 16, 0, 16)
-    sliderHandle.Position = UDim2.new(GUI_SETTINGS.blurFactor / 2, -8, 0.5, -8)
+    sliderHandle.Position = UDim2.new(GUI_SETTINGS.blurFactor, -8, 0.5, -8)
     sliderHandle.BackgroundColor3 = theme.accentColor
     sliderHandle.BorderSizePixel = 0
     sliderHandle.ZIndex = sliderTrack.ZIndex + 2
@@ -2413,7 +2560,7 @@ local function createAdvancedGuiSettingsWindow()
             local newX = math.clamp(mousePos, trackStart, trackEnd)
             
             local relativePos = (newX - trackStart) / sliderTrack.AbsoluteSize.X
-            local newValue = relativePos * 2
+            local newValue = math.clamp(relativePos * 1.0, 0, 1) -- ОГРАНИЧЕНИЕ ДО 1.0!
             
             GUI_SETTINGS.blurFactor = newValue
             blurValue.Text = string.format("%.2f", newValue)
@@ -2425,9 +2572,11 @@ local function createAdvancedGuiSettingsWindow()
         end
     end)
 
-    -- Theme Selection
-    local themeContainer = createSettingContainer()
-    themeContainer.Size = UDim2.new(1, 0, 0, 80)
+    local themeContainer = Instance.new("Frame")
+    themeContainer.Size = UDim2.new(1, 0, 0, 130)
+    themeContainer.BackgroundTransparency = 1
+    themeContainer.ZIndex = contentFrame.ZIndex + 1
+    themeContainer.Parent = contentFrame
 
     local themeLabel = Instance.new("TextLabel")
     themeLabel.Size = UDim2.new(1, -30, 0, 30)
@@ -2442,7 +2591,7 @@ local function createAdvancedGuiSettingsWindow()
     themeLabel.Parent = themeContainer
 
     local themeButtons = Instance.new("Frame")
-    themeButtons.Size = UDim2.new(1, -30, 0, 40)
+    themeButtons.Size = UDim2.new(1, -30, 0, 80)
     themeButtons.Position = UDim2.new(0, 15, 0, 35)
     themeButtons.BackgroundTransparency = 1
     themeButtons.ZIndex = themeContainer.ZIndex + 1
@@ -2450,49 +2599,64 @@ local function createAdvancedGuiSettingsWindow()
 
     local buttonLayout = Instance.new("UIListLayout")
     buttonLayout.FillDirection = Enum.FillDirection.Horizontal
-    buttonLayout.Padding = UDim.new(0, 8)
+    buttonLayout.Padding = UDim.new(0, 6)
     buttonLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    buttonLayout.VerticalAlignment = Enum.VerticalAlignment.Top
     buttonLayout.Parent = themeButtons
 
-    local themeNames = {"Dark", "Light", "Classic"}
-    local themeColors = {
-        Dark = Color3.fromRGB(45, 45, 48),
-        Light = Color3.fromRGB(248, 249, 250),
-        Classic = Color3.fromRGB(0, 122, 255)
-    }
-
-    for _, themeName in ipairs(themeNames) do
+    local themeNames = {"Dark", "Light", "Classic", "Neon", "Purple", "Ocean", "Sunset", "Forest"}
+    
+    for i, themeName in ipairs(themeNames) do
+        local themeData = THEMES[themeName]
+        
         local themeButton = Instance.new("TextButton")
-        themeButton.Size = UDim2.new(0, 80, 0, 32)
-        themeButton.BackgroundColor3 = themeColors[themeName]
-        themeButton.BorderSizePixel = 0
+        themeButton.Size = UDim2.new(0, 65, 0, 35)
+        themeButton.BackgroundColor3 = themeData.mainBg
+        themeButton.BorderSizePixel = 1
+        themeButton.BorderColor3 = themeData.accentColor
         themeButton.Text = ""
         themeButton.AutoButtonColor = false
         themeButton.ZIndex = themeButtons.ZIndex + 1
         themeButton.Parent = themeButtons
 
         local buttonCorner = Instance.new("UICorner")
-        buttonCorner.CornerRadius = UDim.new(0, 6)
+        buttonCorner.CornerRadius = UDim.new(0, 4)
         buttonCorner.Parent = themeButton
 
         local nameLabel = Instance.new("TextLabel")
-        nameLabel.Size = UDim2.new(1, 0, 1, -20)
-        nameLabel.Position = UDim2.new(0, 0, 0, 20)
+        nameLabel.Size = UDim2.new(1, -4, 1, -4)
+        nameLabel.Position = UDim2.new(0, 2, 0, 2)
         nameLabel.BackgroundTransparency = 1
         nameLabel.Text = themeName
-        nameLabel.TextColor3 = themeName == "Light" and Color3.fromRGB(0, 0, 0) or Color3.fromRGB(255, 255, 255)
+        nameLabel.TextColor3 = themeData.textColor
         nameLabel.Font = Enum.Font.GothamMedium
-        nameLabel.TextSize = 11
+        nameLabel.TextSize = 10
+        nameLabel.TextXAlignment = Enum.TextXAlignment.Center
+        nameLabel.TextYAlignment = Enum.TextYAlignment.Center
         nameLabel.ZIndex = themeButton.ZIndex + 1
         nameLabel.Parent = themeButton
 
+        -- Accent color preview
+        local colorPreview = Instance.new("Frame")
+        colorPreview.Size = UDim2.new(1, -6, 0, 3)
+        colorPreview.Position = UDim2.new(0, 3, 0, 3)
+        colorPreview.BackgroundColor3 = themeData.accentColor
+        colorPreview.BorderSizePixel = 0
+        colorPreview.ZIndex = themeButton.ZIndex + 1
+        colorPreview.Parent = themeButton
+
+        local previewCorner = Instance.new("UICorner")
+        previewCorner.CornerRadius = UDim.new(0, 2)
+        previewCorner.Parent = colorPreview
+
+        -- Selection indicator
         local indicator = Instance.new("Frame")
-        indicator.Size = UDim2.new(0, 12, 0, 3)
-        indicator.Position = UDim2.new(0.5, -6, 0, 6)
-        indicator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        indicator.Size = UDim2.new(0, 8, 0, 8)
+        indicator.Position = UDim2.new(1, -12, 0, 4)
+        indicator.BackgroundColor3 = themeData.accentColor
         indicator.BorderSizePixel = 0
         indicator.Visible = GUI_SETTINGS.theme == themeName
-        indicator.ZIndex = themeButton.ZIndex + 1
+        indicator.ZIndex = themeButton.ZIndex + 2
         indicator.Parent = themeButton
 
         local indicatorCorner = Instance.new("UICorner")
@@ -2500,31 +2664,40 @@ local function createAdvancedGuiSettingsWindow()
         indicatorCorner.Parent = indicator
 
         themeButton.MouseButton1Click:Connect(function()
+            -- Hide all indicators
             for _, button in pairs(themeButtons:GetChildren()) do
                 if button:IsA("TextButton") then
                     local ind = button:FindFirstChild("Frame")
-                    if ind then ind.Visible = false end
+                    if ind and ind.Size == UDim2.new(0, 8, 0, 8) then 
+                        ind.Visible = false 
+                    end
                 end
             end
             
             indicator.Visible = true
             applyTheme(themeName)
             
-            task.wait(0.1)
-            createAdvancedGuiSettingsWindow()
+            showNotification("Theme changed to " .. themeName, "success", 2)
         end)
 
         themeButton.MouseEnter:Connect(function()
             TweenService:Create(themeButton, TweenInfo.new(0.2), {
-                Size = UDim2.new(0, 84, 0, 36)
+                Size = UDim2.new(0, 68, 0, 38),
+                BorderSizePixel = 2
             }):Play()
         end)
 
         themeButton.MouseLeave:Connect(function()
             TweenService:Create(themeButton, TweenInfo.new(0.2), {
-                Size = UDim2.new(0, 80, 0, 32)
+                Size = UDim2.new(0, 65, 0, 35),
+                BorderSizePixel = 1
             }):Play()
         end)
+        
+        -- Position buttons in second row if needed
+        if i > 4 then
+            themeButton.Position = UDim2.new(0, ((i - 5) * 71), 0, 40)
+        end
     end
 end
     
