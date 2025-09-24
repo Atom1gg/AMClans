@@ -699,11 +699,6 @@ local function updateKeybindHover(button, isHover)
     end
 end
 
--- 4. ЗАМЕНИ hover эффекты в addCategory функции на:
-clickDetector.MouseEnter:Connect(function()
-    updateCategoryHover(categoryButton, iconImage, activeCategory == categoryButton, true)
-end)
-
 clickDetector.MouseLeave:Connect(function()
     updateCategoryHover(categoryButton, iconImage, activeCategory == categoryButton, false)
 end)
