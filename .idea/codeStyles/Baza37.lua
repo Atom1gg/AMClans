@@ -699,28 +699,6 @@ local function updateKeybindHover(button, isHover)
     end
 end
 
-clickDetector.MouseLeave:Connect(function()
-    updateCategoryHover(categoryButton, iconImage, activeCategory == categoryButton, false)
-end)
-
--- 5. ЗАМЕНИ hover эффекты в createModuleButton функции на:
-clickDetector.MouseEnter:Connect(function()
-    updateModuleHover(moduleButton, moduleName, moduleSystem.activeModuleName == moduleData.name, true)
-end)
-
-clickDetector.MouseLeave:Connect(function()
-    updateModuleHover(moduleButton, moduleName, moduleSystem.activeModuleName == moduleData.name, false)
-end)
-
--- 6. ЗАМЕНИ hover эффекты для keybind кнопок в createToggle на:
-keybindButton.MouseEnter:Connect(function()
-    updateKeybindHover(keybindButton, true)
-end)
-
-keybindButton.MouseLeave:Connect(function()
-    updateKeybindHover(keybindButton, false)
-end)
-
 -- 7. ОБНОВЛЕННАЯ refreshAllElements функция:
 local function refreshAllElements()
     if _G.mainFrame and _G.mainFrame.Visible then
